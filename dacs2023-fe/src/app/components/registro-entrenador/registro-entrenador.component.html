@@ -1,0 +1,51 @@
+<body>
+  <div class="registro-entrenador">
+    <h1>Registro de Entrenador</h1>
+
+    <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
+      <!-- Nombre -->
+      <div class="form-group">
+        <label for="nombre">Nombre</label>
+        <input
+          id="nombre"
+          type="text"
+          class="form-control"
+          formControlName="nombre"
+          placeholder="Nombre completo"
+        />
+        <div *ngIf="formulario.get('nombre')?.invalid && formulario.get('nombre')?.touched">
+          <small *ngIf="formulario.get('nombre')?.errors?.['required']">
+            El nombre es obligatorio.
+          </small>
+          <small *ngIf="formulario.get('nombre')?.errors?.['minlength']">
+            El nombre debe tener al menos 2 caracteres.
+          </small>
+        </div>
+      </div>
+
+      <!-- Especialidad -->
+      <div class="form-group">
+        <label for="especialidad">Especialidad</label>
+        <input
+          id="especialidad"
+          type="text"
+          class="form-control"
+          formControlName="especialidad"
+          placeholder="Especialidad del entrenador"
+        />
+        <div *ngIf="formulario.get('especialidad')?.invalid && formulario.get('especialidad')?.touched">
+          <small *ngIf="formulario.get('especialidad')?.errors?.['required']">
+            La especialidad es obligatoria.
+          </small>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="formulario.invalid">
+        Registrar
+      </button>
+    </form>
+  </div>
+</body>
+<footer class="footer">
+  <p>© 2024 MuscleHub. Todos los derechos reservados.</p>
+</footer>

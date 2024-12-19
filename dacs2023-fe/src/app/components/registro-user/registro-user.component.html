@@ -1,0 +1,107 @@
+
+<body>
+  <div class="registro-user">
+    <h1>Registro de Usuario</h1>
+  
+    <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
+      <!-- Nombre -->
+      <div class="form-group">
+        <label for="nombre">Nombre</label>
+        <input
+          id="nombre"
+          type="text"
+          class="form-control"
+          formControlName="nombre"
+          placeholder="Tu nombre"
+        />
+        <div *ngIf="formulario.get('nombre')?.invalid && formulario.get('nombre')?.touched">
+          <small *ngIf="formulario.get('nombre')?.errors?.['required']">
+            El nombre es obligatorio.
+          </small>
+          <small *ngIf="formulario.get('nombre')?.errors?.['minlength']">
+            El nombre debe tener al menos 2 caracteres.
+          </small>
+        </div>
+      </div>
+  
+      <!-- Edad -->
+      <div class="form-group">
+        <label for="edad">Edad</label>
+        <input
+          id="edad"
+          type="number"
+          class="form-control"
+          formControlName="edad"
+          placeholder="Tu edad"
+        />
+        <div *ngIf="formulario.get('edad')?.invalid && formulario.get('edad')?.touched">
+          <small *ngIf="formulario.get('edad')?.errors?.['required']">
+            La edad es obligatoria.
+          </small>
+          <small *ngIf="formulario.get('edad')?.errors?.['max']">
+            La edad no puede ser mayor a 120.
+          </small>
+          <small *ngIf="formulario.get('edad')?.errors?.['min']">
+            La edad debe ser un número positivo.
+          </small>
+        </div>
+      </div>
+  
+      <!-- Estatura -->
+      <div class="form-group">
+        <label for="estatura">Estatura (cm)</label>
+        <input
+          id="estatura"
+          type="number"
+          class="form-control"
+          formControlName="estatura"
+          placeholder="Tu estatura en cm"
+        />
+        <div *ngIf="formulario.get('estatura')?.invalid && formulario.get('estatura')?.touched">
+          <small *ngIf="formulario.get('estatura')?.errors?.['required']">
+            La estatura es obligatoria.
+          </small>
+          <small *ngIf="formulario.get('estatura')?.errors?.['max']">
+            La estatura no puede ser mayor a 300 cm.
+          </small>
+          <small *ngIf="formulario.get('estatura')?.errors?.['min']">
+            La estatura debe ser un número positivo.
+          </small>
+        </div>
+      </div>
+  
+      <!-- Peso -->
+      <div class="form-group">
+        <label for="peso">Peso (kg)</label>
+        <input
+          id="peso"
+          type="number"
+          class="form-control"
+          formControlName="peso"
+          placeholder="Tu peso en kg"
+        />
+        <div *ngIf="formulario.get('peso')?.invalid && formulario.get('peso')?.touched">
+          <small *ngIf="formulario.get('peso')?.errors?.['required']">
+            El peso es obligatorio.
+          </small>
+          <small *ngIf="formulario.get('peso')?.errors?.['max']">
+            El peso no puede ser mayor a 500 kg.
+          </small>
+          <small *ngIf="formulario.get('peso')?.errors?.['min']">
+            El peso debe ser un número positivo.
+          </small>
+        </div>
+      </div>
+  
+      <button type="submit" class="btn btn-primary" [disabled]="formulario.invalid">
+        Registrar
+      </button>
+    </form>
+  </div>
+</body>
+<footer class="footer">
+  <p>© 2024 MuscleHub. Todos los derechos reservados.</p>
+</footer>
+
+
+  

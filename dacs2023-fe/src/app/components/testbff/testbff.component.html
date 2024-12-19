@@ -1,0 +1,14 @@
+<div *ngIf="loading">Cargando...</div>
+
+<div *ngIf="!loading">
+  <ul>
+    <li *ngFor="let item of datos">
+      <strong>Ejercicio:</strong> {{ item.exercise.name }}<br>
+      <strong>Descripción:</strong> {{ item.exercise.description }}<br>
+      <strong>Base de ejercicio:</strong> {{ item.exercise.exercise_base }}<br>
+      <br>
+      <!-- Si la imagen está presente, mostrarla -->
+      <img *ngIf="item.image" [src]="item.image.image" alt="Imagen del ejercicio" />
+    </li>
+  </ul>
+</div>

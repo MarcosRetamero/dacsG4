@@ -1,0 +1,120 @@
+
+<body>
+  <div class="modo-oscuro-toggle" [class.dark-mode]="isDarkMode">
+      <button (click)="toggleDarkMode()">
+          {{ isDarkMode ? '☀️' : '🌙' }}
+      </button>
+  </div>
+  <div class="container-crear-plan" [class.dark-mode]="isDarkMode">
+      <div class="container" [class.dark-mode]="isDarkMode">
+  
+    
+      <h1 class="title">Crear Plan de Entrenamiento</h1>
+    
+      <!-- Formulario para nombre del plan y cantidad de días -->
+      <div class="form-group">
+        <label for="nombrePlan">Nombre del Plan</label>
+        <input id="nombrePlan" [(ngModel)]="nombrePlan" type="text" placeholder="Ingrese el nombre del plan" />
+      </div>
+    
+      <div class="form-group">
+        <label for="cantidadDias">Cantidad de Días</label>
+        <input id="cantidadDias" [(ngModel)]="cantidadDias" type="number" min="1" placeholder="Cantidad de días" />
+      </div>
+    
+      <button id="botones-plan" (click)="generarDias()" [disabled]="cantidadDias <= 0">Generar Días</button>
+    
+      <!-- Crear días -->
+      <div *ngFor="let dia of dias; let i = index" class="card">
+        <div class="card-header">
+          <h3>Día {{ i + 1 }}</h3>
+        </div>
+        <div class="card-content">
+          <div class="form-group">
+            <label for="grupoMuscular-{{ i }}">Grupo Muscular</label>
+            <input
+              id="grupoMuscular-{{ i }}"
+              [(ngModel)]="dia.grupoMuscular"
+              type="text"
+              placeholder="Ej: Pecho, Piernas, etc."
+            />
+          </div>
+    
+          <div class="form-group">
+            <label for="diaSemana-{{ i }}">Día de la Semana</label>
+            <select [(ngModel)]="dia.diaSemana">
+              <option *ngFor="let diaSemana of diasSemana" [value]="diaSemana">{{ diaSemana }}</option>
+            </select>
+          </div>
+    
+          <button (click)="setDiaSeleccionado(i)">Añadir Ejercicio</button>
+    
+          <div *ngIf="diaSeleccionado === i" class="dialog">
+            <h3>Añadir Ejercicio</h3>
+            <div class="form-group">
+              <label for="nombreEjercicio">Nombre del Ejercicio</label>
+              <input
+                id="nombreEjercicio"
+                [(ngModel)]="ejercicioActual.nombre"
+                type="text"
+                placeholder="Ej: Flexiones, Sentadillas, etc."
+              />
+            </div>
+    
+            <div class="form-group">
+              <label for="repeticiones">Repeticiones</label>
+              <input
+                id="repeticiones"
+                [(ngModel)]="ejercicioActual.repeticiones"
+                type="number"
+                min="1"
+                placeholder="Repeticiones"
+              />
+            </div>
+    
+            <div class="form-group">
+              <label for="series">Series</label>
+              <input
+                id="series"
+                [(ngModel)]="ejercicioActual.series"
+                type="number"
+                min="1"
+                placeholder="Series"
+              />
+            </div>
+    
+            <button (click)="agregarEjercicio(i)">Añadir Ejercicio</button>
+          </div>
+    
+          <!-- Mostrar ejercicios -->
+          <div *ngFor="let ejercicio of dia.ejercicios; let j = index" class="exercise-item">
+            <span>{{ ejercicio.nombre }} - {{ ejercicio.repeticiones }} reps x {{ ejercicio.series }} series</span>
+            <button (click)="eliminarEjercicio(i, j)">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Vista previa del plan -->
+      <div *ngIf="dias.length > 0">
+        <h2 class="preview-title">Vista Previa del Plan</h2>
+        <div *ngFor="let dia of dias; let i = index" class="card">
+          <div class="card-header">
+            <h3>{{ dia.diaSemana }} - {{ dia.grupoMuscular }}</h3>
+          </div>
+          <div class="card-content">
+            <ul>
+              <li *ngFor="let ejercicio of dia.ejercicios">
+                {{ ejercicio.nombre }} - {{ ejercicio.repeticiones }} reps x {{ ejercicio.series }} series
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- Botón de guardar plan -->
+        <button id="botones-plan" (click)="guardarPlan()">Guardar Plan</button>
+    </div>
+  </div>
+  </body>
+  <footer class="footer">
+    <p>© 2024 MuscleHub. Todos los derechos reservados.</p>
+  </footer>

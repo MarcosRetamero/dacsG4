@@ -1,0 +1,57 @@
+<body>
+  <div class="dashboard-container">
+    <div class="datos-usuario">
+      <div class="info-usuario">
+        <h2>{{ nombre }}, {{ edad }} años</h2>
+        <p><strong>Objetivo físico:</strong> {{ objetivoFisico }}</p>
+        <p><strong>Peso inicial:</strong> {{ pesoInicial }} kg - <strong>Peso actual:</strong> {{ pesoActual }} kg</p>
+        <p><strong>Índice de grasa corporal:</strong> {{ grasaCorporal }}%</p>
+      </div>
+    </div>
+
+    <div class="entrenador-info">
+      <h3>Trainer</h3>
+      <h3>{{ nombreEntrenador }}</h3>
+      <div class="entrenador-img">
+        <img src="assets/images/image.png" alt="Foto de {{ nombreEntrenador }}">
+      </div>
+      <div class="entrenador-details">
+        <p><strong>Especialidad:</strong> {{ especialidad }}</p>
+      </div>
+    </div>
+
+    <div class="plan-entrenamiento">
+      <h3>Plan de Entrenamiento</h3>
+      <div class="dias-container">
+        <div class="dia" *ngFor="let dia of planEntrenamiento">
+          <h4>{{ dia.dia }}</h4>
+          <p>{{ dia.grupoMuscular }}</p>
+          <button class="entrenamiento-btn" [routerLink]="['/plan-entrenamiento', dia.dia]">Ver entrenamiento</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="progreso-info">
+      <h3>Mi progreso</h3>
+      <h3>Evolución del peso</h3>
+
+      <select class="dropdown">
+        <option value="semana">Por Semana</option>
+        <option value="mes">Por Mes</option>
+        <option value="año">Por Año</option>
+      </select>
+
+      <div class="chart-container">
+        <canvas #pesoChart></canvas>
+      </div>
+
+      <div class="botones-usuario">
+        <button class="btn-cambiar-objetivo" (click)="agregarPeso()">Agregar peso</button>
+      </div>
+    </div>
+  </div>
+</body>
+
+<footer class="footer">
+  <p>© 2024 MuscleHub. Todos los derechos reservados.</p>
+</footer>

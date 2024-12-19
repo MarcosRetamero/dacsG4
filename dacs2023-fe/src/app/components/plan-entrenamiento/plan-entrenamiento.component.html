@@ -1,0 +1,39 @@
+<body>
+  <div class="container" *ngIf="filteredPlan">
+    <h1>Plan de Entrenamiento</h1>
+
+    <div class="day-card">
+      <h2 class="day-title">{{ filteredPlan.day }}</h2>
+      <p class="muscle-groups">{{ filteredPlan.muscleGroups }}</p>
+
+      <div class="exercise-list">
+        <div *ngFor="let exercise of filteredPlan.exercises" class="exercise-card">
+          <div class="image-container">
+            <img *ngIf="exercise.imageUrl" [src]="exercise.imageUrl" [alt]="'Demostración de ' + exercise.name" />
+            <div *ngIf="!exercise.imageUrl" class="w-full h-full flex items-center justify-center text-muted-foreground">
+              Imagen del ejercicio
+            </div>
+          </div>
+          <h3>{{ exercise.name }}</h3>
+          <div class="exercise-info">
+            <div>
+              <p>Series</p>
+              <p>{{ exercise.sets }}</p>
+            </div>
+            <div>
+              <p>Repeticiones</p>
+              <p>{{ exercise.reps }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!filteredPlan" class="no-plan">
+    <p>No hay entrenamientos disponibles para el día seleccionado.</p>
+  </div>
+</body>
+<footer class="footer">
+  <p>© 2024 MuscleHub. Todos los derechos reservados.</p>
+</footer>

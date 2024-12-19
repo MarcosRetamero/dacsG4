@@ -1,0 +1,59 @@
+
+<body>
+  <div class="modo-oscuro-toggle" >
+    <button (click)="toggleDarkMode()"></button>
+  </div>
+  <div class="panel-entrenador">
+  
+    <h1 class="card-title">Detalles del Alumno</h1>
+  
+    <!-- Información Personal -->
+    <div class="card">
+      <h3 class="card-title">Información Personal</h3>
+      <div class="card-content grid grid-cols-2 gap-4">
+        <div>
+          <label>Nombre</label>
+          <p>{{ student.name }}</p>
+        </div>
+        <div>
+          <label>Edad</label>
+          <p>{{ student.age }} años</p>
+        </div>
+        <div>
+          <label>Email</label>
+          <p>{{ student.email }}</p>
+        </div>
+        <div>
+          <label>Teléfono</label>
+          <p>{{ student.phone }}</p>
+        </div>
+        <div>
+          <label>Fecha de Inicio</label>
+          <p>{{ student.startDate }}</p>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Plan de Entrenamiento -->
+    <div class="card">
+      <h3 class="card-title">Plan de Entrenamiento</h3>
+      <div class="card-content">
+        <label>Plan Actual</label>
+        <p>{{ student.currentPlan || 'Sin plan asignado' }}</p>
+        <label>Asignar Nuevo Plan</label>
+        <select [(ngModel)]="selectedPlan" class="form-select">
+          <option value="" disabled>Seleccionar plan</option>
+          <option *ngFor="let plan of availablePlans" [value]="plan.id">
+            {{ plan.name }}
+          </option>
+        </select>
+        <button (click)="handleAssignPlan()" class="btn btn-primary" [disabled]="!selectedPlan">
+          Asignar Plan
+        </button>
+      </div>
+    </div>
+  </div>  
+</body>
+<footer class="footer">
+  <p>© 2024 MuscleHub. Todos los derechos reservados.</p>
+</footer>

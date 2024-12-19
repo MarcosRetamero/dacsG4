@@ -1,0 +1,264 @@
+body {
+  font-family: 'Roboto', sans-serif; /* Usamos la fuente Roboto desde el CSS global */
+  display: flex;
+  justify-content: center;
+  background-image: url('assets/images/wallpaper.png');
+  background-position: center; /* Centra la imagen */
+  padding: 30px 0px;
+  min-height: 70vh;
+  height: auto;
+}
+
+.dashboard-container {
+  display:grid;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px;
+  max-width: 70%;
+  margin: 0;
+  grid-template-columns: repeat(2,1fr);
+  background-color: var(--light-grey); /* Beige claro */
+  box-shadow: 0px 0px 10px 5px rgb(255, 0, 0);
+  border-radius: 10px;
+}
+
+.datos-usuario,
+.entrenador-info,
+.progreso-info {
+  background-color: var(--white); /* Beige claro */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width:auto;
+}
+
+.datos-usuario h2,
+.entrenador-info h3 {
+  color: var(--black); /* Negro */
+  margin-bottom: 15px;
+  font-size: 24px; /* Tamaño de fuente más grande para los títulos */
+}
+
+.datos-usuario p,
+.entrenador-info p {
+  color: var(--grey); /* Gris oscuro */
+  margin: 10px 0;
+  line-height: 1.6;
+  font-size: 16px; /* Tamaño de fuente cómodo */
+  display: flex;
+  flex-direction: column;
+
+}
+
+.datos-usuario .btn-cambiar-objetivo,
+.entrenador-info .btn-contactar-entrenador {
+  background-color: var(--grey); /* Gris oscuro */
+  color: var(--white); /* Blanco */
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.datos-usuario{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.botones-usuario {
+  display: flex;
+  flex-direction: row; /* Los botones estarán en una columna */
+  gap: 10px; /* Separación entre botones */
+  justify-content: end;
+  align-items: flex-end;
+}
+
+.datos-usuario .btn-cambiar-objetivo:hover,
+.entrenador-info .btn-contactar-entrenador:hover {
+  background-color: var(--black); /* Negro */
+  color: var(--white); /* Blanco */
+  transform: scale(1.05); /* Efecto de suavizado con hover */
+}
+
+.entrenador-info .foto-entrenador {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.entrenador-img img {
+  width: 120px;
+  height: 120px;
+  border-radius: 100%; /* Hace la imagen redonda */
+  object-fit: cover;
+  border: 2px solid var(--grey);
+}
+
+.entrenador-info .entrenador-details {
+  text-align: left;
+}
+
+.plan-entrenamiento {
+  grid-column: 1 / 3; /* Ocupará toda la fila */
+  background-color: var(--white); /* Fondo blanco */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.plan-entrenamiento h3 {
+  color: var(--black); /* Título negro */
+  margin-bottom: 20px;
+  font-size: 24px; /* Tamaño de fuente para títulos */
+  text-align: center;
+}
+
+.dias-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* Cinco columnas, una por cada día */
+  gap: 20px;
+}
+
+.dia {
+  background-color: var(--light-grey);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.dia h4 {
+  color: var(--black);
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.dia ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dia li {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: var(--white);
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.dia li p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: var(--grey);
+}
+
+
+
+.progreso-info {
+ grid-column: 1/3; 
+ display: flex;
+ flex-direction: column;
+ justify-content: space-between;
+ border: 1px solid #ddd;
+ border-radius: 8px;
+ padding: 20px;
+ box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+.progreso-info button {
+  background-color: var(--grey); /* Gris oscuro */
+  color: var(--white); /* Blanco */
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.info-destacada{
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Asegura que los recuadros no se desalineen */
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  .datos-usuario,
+  .entrenador-info {
+    width: 100%;
+  }
+}
+
+.dropdown {
+  width: 150px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgb(227, 227, 227);
+  margin: 10px 0;
+  background-color: var(--white);
+  font-size: 14px;
+  color: var(--grey);
+  cursor: pointer;
+  padding-right: 30px;
+  transition: all 0.2s ease;
+}
+
+.dropdown:hover {
+  border-color: var(--black);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown:focus {
+  outline: none;
+  border-color: var(--black);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.chart-container {
+  position: relative;
+  margin: 20px auto; /* Centrado horizontal */
+  height: 300px;
+  width: 80%; /* Reducir el ancho para que no ocupe todo el espacio */
+  background-color: var(--white);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+footer.footer {
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto;
+  font-family: 'Roboto', sans-serif; /* Usamos la fuente Roboto desde el CSS global */
+}
+
+
+.entrenamiento-btn{
+  background-color: var(--grey); /* Gris oscuro */
+  color: var(--white); /* Blanco */
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-align: center;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+}

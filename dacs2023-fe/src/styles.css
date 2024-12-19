@@ -1,0 +1,31 @@
+/* global color palette */
+
+:root {
+  --white: #F6F6F6; /* blanco */
+  --light-grey: #E8E8E8; /* verde claro */
+  --grey: #292929; /* beige */
+  --dark-red: #710D07; /* negro */
+  --red: #F1351C; /* gris oscuro */
+  --light-red: #F67D59; /* gris muy claro para el fondo */
+  --black: #000000 ;
+  --primary-color: #4CAF50; /* Color verde, por ejemplo */
+  --primary-color-dark: #388E3C; /* Versión más oscura del verde */
+  --text-color: #333; /* Color del texto */
+  --border-color: #ddd; /* Color del borde */
+  --card-background: #f9f9f9; /* Fondo de las tarjetas */
+  --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra de las tarjetas */
+
+
+  /* Fuentes */
+  --font-primary: 'Roboto', sans-serif;
+  --font-secondary: 'Open Sans', sans-serif;
+}
+
+body{
+  margin:0;
+}
+
+/* Importamos las fuentes desde Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+

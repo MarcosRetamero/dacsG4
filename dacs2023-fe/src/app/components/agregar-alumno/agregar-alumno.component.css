@@ -1,0 +1,96 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  display: flex;
+  justify-content: center;
+  background-image: url('assets/images/wallpaper.png');
+  background-position: center;
+  padding: 30px 0px;
+  height: auto;
+  min-height: 75vh;
+
+}
+
+.registro-user {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px 30px;
+  border: 1px solid #ccc;
+  background-color: var(--light-grey);
+  box-shadow: 0px 0px 10px 5px rgb(255, 0, 0);
+  border-radius: 10px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 8px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+tr {
+  cursor: pointer;
+}
+
+tr:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.selected {
+  background-color: rgba(0, 123, 255, 0.2);
+}
+
+.boton-agregar {
+  margin-top: 20px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+footer.footer {
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto;
+}

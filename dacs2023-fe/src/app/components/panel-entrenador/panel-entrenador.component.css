@@ -1,0 +1,153 @@
+body {
+  font-family: 'Roboto', sans-serif; /* Usamos la fuente Roboto desde el CSS global */
+  display: flex;
+  flex-direction: column;
+  background-image: url('assets/images/wallpaper.png');
+  background-position: center; /* Centra la imagen */
+  min-height: 70vh;
+  height: auto;
+}
+.panel-entrenador h1{
+  margin-top: 10px;
+  font-size: 25px;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-bottom: 0px;
+}
+
+.panel-entrenador {
+    font-family: Arial, sans-serif;
+    padding: 0px 25px 20px 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Espaciado entre tarjetas */
+    color: #333;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    background-color: var(--light-grey); /* gris claro */
+    margin: 0px 200px;
+    box-shadow: 0px 0px 10px 5px rgb(255, 0, 0);
+    border-radius: 10px;
+  }
+  
+  .panel-entrenador.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+
+  .card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .panel-entrenador.dark-mode .card {
+    background-color: #1e1e1e;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  }
+  
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f4f4f4;
+    color: #333;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .panel-entrenador.dark-mode input[type="text"] {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border: 1px solid #555;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  table th,
+  table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  table td:last-child {
+    text-align: right; /* Alinea el contenido de la última columna a la derecha */
+  }
+  
+  table button {
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    width: 100%;
+  }
+  
+  table button:hover {
+    background-color: #0056b3;
+  }
+  
+  .boton-agregar {
+    background-color: #28a745;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 10px 20px;
+    margin-top: 10px;
+  }
+  
+  .boton-agregar:hover {
+    background-color: #218838;
+  }
+  
+  .modo-oscuro-toggle {
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 250px;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Transición para un cambio suave */
+    margin: 10px 0px;
+  }
+
+
+  
+  .panel-entrenador.dark-mode .modo-oscuro-toggle {
+    background-color: #121212; /* Fondo oscuro sincronizado */
+    color: #e0e0e0; /* Ajuste de color del texto, si es necesario */
+  }
+  
+  .modo-oscuro-toggle button {
+    padding: 10px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #444;
+    color: white;
+    border: none;
+    border-radius: 100%;
+  }
+  .modo-oscuro-toggle.dark-mode button{
+    background-color: #e0e0e0;
+  }
+  
+  .panel-entrenador.dark-mode .modo-oscuro-toggle button {
+    background-color: #e0e0e0; /* Fondo del botón en modo oscuro */
+    color: #333; /* Color del texto en modo oscuro */
+  }
+
+  footer.footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 30px;
+    font-family: 'Roboto', sans-serif; /* Usamos la fuente Roboto desde el CSS global */
+  }
