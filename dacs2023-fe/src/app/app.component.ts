@@ -45,6 +45,10 @@ export class AppComponent implements OnInit {
         this.role = await this.keycloak.isUserInRole("ROLE-A");
         console.log('Has ROLE-A:', this.role);
 
+        // Mostrar el token JWT
+        const token = await this.keycloak.getToken();
+        console.log('JWT Token:', token);
+
         // Llamar a la API para registrar o asociar al usuario con `trainer` o `customer`
         this.registrarUsuarioSiEsNecesario();
 
