@@ -1,39 +1,37 @@
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { KeycloakService } from 'keycloak-angular';
+import { AuthService } from './auth.service';  // Usar el AuthService para obtener el token
+import { switchMap } from 'rxjs/operators';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private keycloakService: KeycloakService) {}
+  constructor(private authService: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const keycloakInstance = this.keycloakService.getKeycloakInstance();
-    const token = keycloakInstance.token;
-
-    // Logs para depurar
     console.log('Interceptando solicitud HTTP...');
-    console.log('Token obtenido desde Keycloak:', token);
 
-    if (keycloakInstance.idTokenParsed) {
-      console.log('Información del usuario desde idTokenParsed:');
-      console.log('Usuario autenticado:', keycloakInstance.idTokenParsed['preferred_username']);
-      console.log('Email del usuario:', keycloakInstance.idTokenParsed['email']);
-    } else {
-      console.log('No se encontró información de usuario en idTokenParsed.');
-    }
+    // Obtener el token utilizando el AuthService
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        if (token) {
+          // Si hay un token, lo agregamos al encabezado
+          console.log('Token obtenido desde AuthService:', token);
 
-    if (token) {
-      const cloned = req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log('Encabezado Authorization agregado:', cloned.headers.get('Authorization'));
-      return next.handle(cloned);
-    }
+          const cloned = req.clone({
+            setHeaders: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-    console.warn('No se encontró un token. Enviando solicitud sin encabezado Authorization.');
-    return next.handle(req);
+          console.log('Solicitud clonada con el encabezado Authorization:', cloned.headers.get('Authorization'));
+          return next.handle(cloned);
+        } else {
+          // Si no hay token, pasamos la solicitud sin modificarla
+          console.warn('No se encontró un token, enviando solicitud sin encabezado Authorization.');
+          return next.handle(req);
+        }
+      })
+    );
   }
 }

@@ -1,3 +1,6 @@
+//ESTE ARCHIVO -AL PARECER- SE COMUNICA CON EL BFF SOLAMENTE PARA TESTEAR EL CONECTOR
+
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';

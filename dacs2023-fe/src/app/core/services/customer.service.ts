@@ -22,6 +22,11 @@ export class CustomerService {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
+  // Obtener cliente por userId
+  getCustomerByUserId(userId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/user/${userId}`);
+  }
+
   // Crear nuevo cliente
   addCustomer(customerData: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, customerData);
