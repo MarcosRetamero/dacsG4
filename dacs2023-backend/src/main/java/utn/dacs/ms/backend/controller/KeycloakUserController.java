@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/keycloak_user")
+@RequestMapping("/keycloak")
 public class KeycloakUserController {
 
     @Autowired

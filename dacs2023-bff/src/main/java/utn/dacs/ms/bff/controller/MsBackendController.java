@@ -145,19 +145,19 @@ public class MsBackendController {
     ////////// REQUEST PARA KEYCLOAK USER ////////////
     
     // Ruta para obtener todos los usuarios de Keycloak
-    @GetMapping("/keycloak/users")
+    @GetMapping("/keycloak")
     public List<KeycloakUserDto> getAllKeycloakUsers() {
         return apiBackendService.getAllKeycloakUsers();
     }
 
     // Ruta para obtener un usuario de Keycloak por ID
-    @GetMapping("/keycloak/user/{id}")
+    @GetMapping("/keycloak/{id}")
     public KeycloakUserDto getKeycloakUser(@PathVariable Long id) {
         return apiBackendService.getKeycloakUserById(id);
     }
 
     // Ruta para crear un nuevo usuario de Keycloak
-    @PostMapping("/keycloak/user")
+    @PostMapping("/keycloak")
     public KeycloakUserDto createKeycloakUser(@RequestBody KeycloakUserDto keycloakUserDto) {
         return apiBackendService.createKeycloakUser(keycloakUserDto);
     }

@@ -12,7 +12,7 @@ spring:
           keycloak-login:
             authorization-grant-type: authorization_code
             client-id: dacs2023-bff
-            client-secret: cU8ft8H8IEHucflCKvCTzueZpYVVsOfV
+            client-secret: GjL0216aGJOhgK3UJCx8h1zTbD9sLrqX
             provider: keycloak
             scope: openid,profile,email,offline_access
       resourceserver:
@@ -67,7 +67,7 @@ dacs:
     service-account:
       auth: ${IDP_URL:http://localhost:8080/realms/master/protocol/openid-connect}
       client-id: 'dacs2023-bff'
-      secret: 'cU8ft8H8IEHucflCKvCTzueZpYVVsOfV'
+      secret: 'GjL0216aGJOhgK3UJCx8h1zTbD9sLrqX'
       login:
         url: ${IDP_LOGIN_URL:http://localhost:8080/realms/master/protocol/openid-connect}
         client-id: ${IDP_CLIENT_ID:dacs2023-fe}

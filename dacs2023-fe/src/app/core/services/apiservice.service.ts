@@ -5,32 +5,40 @@ import { HttpClientModule } from '@angular/common/http';
 import { IRequestTest } from '../models/request.interface';
 
 import { IResponse, ITestResponse } from '../models/response.interface';
-import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ApiService {
-    private baseUrl = environment.backendForFrontendUrl;
 
     constructor(private http: HttpClient) {
 
     }
 
-    getPing(): Observable<string> {
-        return this.http.get(`${this.baseUrl}/ping`, { responseType: 'text' });
+
+    getPing() {
+        const url = `${environment.backendForFrontendUrl}/ping`;
+        return this.http
+            .get(url, { responseType: 'text' })
+            .pipe();
     }
 
-    getConectorPing(): Observable<string> {
-        return this.http.get(`${this.baseUrl}/conector/ping`, { responseType: 'text' });
+    getConectorPing() {
+        const url = `${environment.backendForFrontendUrl}/conector/ping`;
+        return this.http
+            .get(url, { responseType: 'text' })
+            .pipe();
     }
 
-    getTest(): Observable<ITestResponse> {
-        return this.http.get<ITestResponse>(`${this.baseUrl}/test`);
+    getTest() {
+        const url ='assets/json/test.json';
+        return this.http
+            .get<ITestResponse>(url, this.headers)
+            .pipe();
     }
 
     postTest(param: IRequestTest) { 
-        const url = `${this.baseUrl}/test`;
+        const url = `${environment.backendForFrontendUrl}/test`;
         return this.http.post<any[]>(url, param, this.headers);
     }
 

@@ -99,15 +99,15 @@ public interface MsApiBackendClient {
     ///////// CLIENT PARA KEYCLOAK USER //////////
     
     // Obtener todos los usuarios de Keycloak
-    @GetMapping("/keycloak/users")
+    @GetMapping("/keycloak")
     List<KeycloakUserDto> getAllKeycloakUsers();
 
     // Obtener un usuario de Keycloak por ID
-    @GetMapping("/keycloak/user/{id}")
+    @GetMapping("/keycloak/{id}")
     KeycloakUserDto getKeycloakUserById(@PathVariable("id") Long id);
 
     // Crear un usuario de Keycloak
-    @PostMapping("/keycloak/user")
+    @PostMapping("/keycloak")
     KeycloakUserDto createKeycloakUser(@RequestBody KeycloakUserDto keycloakUserDto);
     
     

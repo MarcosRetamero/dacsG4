@@ -17,6 +17,11 @@ export class TrainerService {
     return this.http.get<any>(this.apiUrl);
   }
 
+  // Método para obtener un entrenador por userId
+  getTrainerByUserId(userId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/user/${userId}`);
+  }
+
   // Método para agregar un entrenador
   addTrainer(trainerData: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, trainerData);

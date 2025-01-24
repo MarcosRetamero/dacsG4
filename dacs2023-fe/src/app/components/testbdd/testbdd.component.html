@@ -1,0 +1,21 @@
+<!-- testbdd.component.html -->
+<div *ngIf="bddData; else loading">
+  <h2>Información del Usuario</h2>
+  <p><strong>ID:</strong> {{ bddData.keycloakUser.id }}</p>
+  <p><strong>Email:</strong> {{ bddData.keycloakUser.email }}</p>
+  <p><strong>Estado:</strong> {{ bddData.keycloakUser.state ? 'Activo' : 'Inactivo' }}</p>
+
+  <h2>Entrenador</h2>
+  <p><strong>Nombre:</strong> {{ bddData.trainer.name }}</p>
+  <p><strong>Especialidad:</strong> {{ bddData.trainer.specialty }}</p>
+
+  <h2>Cliente</h2>
+  <p><strong>Nombre:</strong> {{ bddData.customer.name }}</p>
+  <p><strong>Peso Actual:</strong> {{ bddData.customer.actualWeight }}</p>
+
+  <!-- Añadir más secciones para mostrar otros datos -->
+</div>
+
+<ng-template #loading>
+  <p>Cargando datos...</p>
+</ng-template>
