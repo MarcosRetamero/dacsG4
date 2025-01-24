@@ -9,7 +9,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
 // Keycloak
 import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
-import { initializeKeycloak } from './core/keycloak-init.factory';
+import { initializeKeycloak } from './keycloak-init.factory';
 import { AuthInterceptor } from './auth/auth.interceptor';
 
 // Componentes
@@ -23,6 +23,8 @@ import { AgregarAlumnoComponent } from './components/agregar-alumno/agregar-alum
 import { PlanEntrenamientoComponent } from './components/plan-entrenamiento/plan-entrenamiento.component';
 import { RegistroEntrenadorComponent } from './components/registro-entrenador/registro-entrenador.component';
 import { TestBffComponent } from './components/testbff/testbff.component';
+import { TestBddComponent } from './components/testbdd/testbdd.component';
+
 
 // Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,6 +33,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+
 
 @NgModule({
   declarations: [
@@ -45,7 +48,7 @@ import { MatCardModule } from '@angular/material/card';
     PlanEntrenamientoComponent,
     RegistroEntrenadorComponent,
     TestBffComponent,
-    
+    TestBddComponent
   ],
   imports: [
     BrowserModule,
@@ -64,16 +67,16 @@ import { MatCardModule } from '@angular/material/card';
   ],
   providers: [
     {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    },
-    {
       provide: APP_INITIALIZER,
       useFactory: initializeKeycloak,
       deps: [KeycloakService],
       multi: true
-    }
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }    
   ],
   bootstrap: [AppComponent],
 })

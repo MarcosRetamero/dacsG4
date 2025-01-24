@@ -36,7 +36,7 @@ export interface KeycloakUser {
   export interface TrainingPlan {
     id: number;
     goal: string;
-    daysInWeek: number;
+    daysInWeek: number; // <-- Nombre correcto
     totalCustomers: number;
     trainerId: number;  // FK to Trainer
   }
@@ -66,6 +66,8 @@ export interface KeycloakUser {
     trainingRoutineId: number;  // FK to TrainingRoutine
     sets: number;
     reps: number;
+    muscularGroup: string; // <-- Nombre correcto
+    weekday: string; // <-- Nombre correcto
   }
   
   export interface BddResponse {

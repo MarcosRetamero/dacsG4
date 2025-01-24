@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { KeycloakService } from 'keycloak-angular';
-import { Observable, of } from 'rxjs';
-import { UserProfileService } from './user-profile.service';  // Asegúrate de importar UserProfileService
+import { Observable, of, from } from 'rxjs';
+
 
 @Injectable({
   providedIn: 'root'
@@ -10,13 +10,12 @@ export class AuthService {
   private tokenKey = 'authToken';
 
   constructor(
-    private keycloakService: KeycloakService,
-    private userProfileService: UserProfileService  // Inyectamos el servicio de perfil
+    private keycloakService: KeycloakService
   ) {}
 
   // Verificar si el usuario está autenticado
   isAuthenticated(): Observable<boolean> {
-    return of(this.keycloakService.isLoggedIn());
+    return from(this.keycloakService.isLoggedIn());
   }
 
   // Obtener el token de acceso de Keycloak
@@ -26,31 +25,28 @@ export class AuthService {
       return of(token);  // Devuelve el token almacenado en localStorage
     } else {
       return new Observable(observer => {
-        this.keycloakService
-          .getKeycloakInstance()
-          .token
-          .then(token => {
-            this.setStoredToken(token);  // Almacena el token en localStorage
-            observer.next(token);
-            observer.complete();
-          })
-          .catch(err => {
-            observer.error(err);
-          });
+        const token = this.keycloakService.getKeycloakInstance().token;
+        if (token) {
+          this.setStoredToken(token); // Almacena el token en localStorage
+          observer.next(token);
+          observer.complete();
+        } else {
+          observer.error('Token is undefined');
+        }
       });
     }
   }
 
   // Obtener información del usuario (perfil)
   getUserInfo(): Observable<any> {
-    const storedProfile = this.userProfileService.getPerfilUsuario(); // Revisa el localStorage
+    const storedProfile = this.getStoredUserProfile(); // Revisa el localStorage
     if (storedProfile) {
       return of(storedProfile); // Devuelve el perfil almacenado
     } else {
       return new Observable(observer => {
         this.keycloakService.loadUserProfile()
           .then(profile => {
-            this.userProfileService.setPerfilUsuario(profile); // Guarda el perfil en el localStorage
+            this.setStoredUserProfile(profile); // Guarda el perfil en el localStorage
             observer.next(profile);
             observer.complete();
           })
@@ -74,7 +70,7 @@ export class AuthService {
   // Cerrar sesión
   logout(): void {
     this.clearStoredToken();
-    this.userProfileService.clearPerfilUsuario(); // Limpiar el perfil del usuario en localStorage
+    this.clearStoredUserProfile(); // Limpiar el perfil del usuario en localStorage
     this.keycloakService.logout();
   }
 
@@ -91,5 +87,21 @@ export class AuthService {
   // Limpiar el token de localStorage
   private clearStoredToken(): void {
     localStorage.removeItem(this.tokenKey);
+  }
+
+  // Almacenar el perfil del usuario en localStorage
+  private setStoredUserProfile(profile: any): void {
+    localStorage.setItem('userProfile', JSON.stringify(profile));
+  }
+
+  // Obtener el perfil del usuario desde localStorage
+  private getStoredUserProfile(): any | null {
+    const profile = localStorage.getItem('userProfile');
+    return profile ? JSON.parse(profile) : null;
+  }
+
+  // Limpiar el perfil del usuario en localStorage
+  private clearStoredUserProfile(): void {
+    localStorage.removeItem('userProfile');
   }
 }
