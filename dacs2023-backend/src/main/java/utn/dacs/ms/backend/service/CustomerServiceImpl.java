@@ -73,5 +73,7 @@ public class CustomerServiceImpl implements CustomerService {
             	    .orElseGet(List::of);
         }
         return customerRepository.findAll(); // Retorna todos los clientes si no hay filtro		
-	}    
+	}
+
+ 
 }
