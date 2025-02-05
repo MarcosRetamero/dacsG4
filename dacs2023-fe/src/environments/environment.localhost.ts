@@ -2,7 +2,7 @@ export const environment = {
     production: false,
     keycloak: {
       url: 'http://localhost:8080',
-      realm: 'master',
+      realm: 'dacsgrupo4',
       clientId: 'dacs2023-fe'
     },
     backendForFrontendUrl: '/api', // Esta es la URL para la BFF

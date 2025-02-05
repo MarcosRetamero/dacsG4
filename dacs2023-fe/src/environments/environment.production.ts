@@ -2,7 +2,7 @@ export const environment = {
     production: true,
     keycloak: {
       url: 'https://keycloak-produccion.com',
-      realm: 'dacs',
+      realm: 'dacsgrupo4',
       clientId: 'dacs-fe'
     },
     backendForFrontendUrl: 'https://mi-api-produccion.com/api', // URL de la BFF en producción
