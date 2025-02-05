@@ -9,8 +9,9 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
 // Keycloak
 import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
-import { initializeKeycloak } from './keycloak-init.factory';
-import { AuthInterceptor } from './auth/auth.interceptor';
+//import { initializeKeycloak } from './keycloak-init.factory';
+import { initializeKeycloak } from './core/init/keycloak-init.factory';
+//import { AuthInterceptor } from './auth/auth.interceptor';
 
 // Componentes
 import { DashboardClienteComponent } from './components/dashboard-cliente/dashboard-cliente.component';
@@ -71,12 +72,12 @@ import { MatCardModule } from '@angular/material/card';
       useFactory: initializeKeycloak,
       deps: [KeycloakService],
       multi: true
-    },
+    }/*,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
-    }    
+    }   */ 
   ],
   bootstrap: [AppComponent],
 })
