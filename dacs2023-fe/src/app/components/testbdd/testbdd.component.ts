@@ -13,6 +13,8 @@ export class TestBddComponent implements OnInit {
 
   bddData: BddResponse | null = null;
 
+  
+
   constructor(private bddService: BddService) { }
 
   ngOnInit(): void {
