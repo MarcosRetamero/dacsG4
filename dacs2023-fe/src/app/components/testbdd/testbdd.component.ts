@@ -1,6 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { BddService } from '../../core/services/bdd.service';
-import { BddResponse } from '../../core/models/bdd.model';
 
 @Component({
   selector: 'app-testbdd',
@@ -8,18 +7,18 @@ import { BddResponse } from '../../core/models/bdd.model';
   styleUrls: ['./testbdd.component.css']
 })
 export class TestBddComponent implements OnInit {
-  bddData!: BddResponse | null;  // Inicializa en null para evitar undefined
+  bddData: any[] = [];  // Usamos `any[]` en lugar de `BddResponse[]`
 
   constructor(private bddService: BddService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.bddService.getBddData().subscribe(
-      (data : any) => {
-        console.log('📥 Datos recibidos:', data);  // Verifica si los datos llegan correctamente
-        this.bddData = data;
-        this.cdr.detectChanges(); // Forzar actualización de la vista si es necesario
+      (data: any) => {  // Ahora `data` es de tipo `any`
+        console.log('📥 Datos recibidos:', data);
+        this.bddData = data;  // Asigna los datos sin validación de tipo
+        this.cdr.detectChanges();  // Fuerza actualización de la vista si es necesario
       },
-      (error : any) => {
+      (error: any) => {
         console.error('❌ Error al obtener datos:', error);
       }
     );

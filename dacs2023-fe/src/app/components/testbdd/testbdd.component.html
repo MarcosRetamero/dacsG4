@@ -1,9 +1,9 @@
-<div *ngIf="bddData && bddData.length > 0; else loading">
+<div *ngIf="bddData?.length > 0; else loading">
   <h2>Clientes</h2>
   <ul>
     <li *ngFor="let item of bddData">
-      <p><strong>Nombre:</strong> {{ item.name }}</p>
-      <p><strong>Peso Actual:</strong> {{ item.actualWeight }}</p>
+      <p><strong>Nombre:</strong> {{ item?.name }}</p>
+      <p><strong>Peso Actual:</strong> {{ item?.actualWeight }}</p>
       <hr>
     </li>
   </ul>
