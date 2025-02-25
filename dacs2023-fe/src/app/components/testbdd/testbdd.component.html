@@ -1,23 +1,15 @@
-<div class="container">
-  <h1>MuscleHub</h1>
-  <h2>Información del Usuario</h2>
-
-  <div *ngIf="bddData && bddData.length > 0; else noData">
-    <div *ngFor="let customer of bddData">
-      <h3>Cliente</h3>
-      <p><strong>ID:</strong> {{ customer.id }}</p>
-      <p><strong>Nombre:</strong> {{ customer.name }}</p>
-      <p><strong>Edad:</strong> {{ customer.age }} años</p>
-      <p><strong>Altura:</strong> {{ customer.stature }} cm</p>
-      <p><strong>Peso Actual:</strong> {{ customer.actualWeight }} kg</p>
-      <p><strong>Entrenador Asignado:</strong> {{ customer.assignedTrainerId ? customer.assignedTrainerId : 'Ninguno' }}</p>
-      <p><strong>Plan de Entrenamiento:</strong> {{ customer.assignedTrainingPlanId ? customer.assignedTrainingPlanId : 'Sin asignar' }}</p>
-      <hr />
-    </div>
-  </div>
-
-  <!-- Mensaje cuando no hay datos -->
-  <ng-template #noData>
-    <p>No hay datos disponibles.</p>
-  </ng-template>
+<div *ngIf="bddData; else loading">
+  <h3>Cliente</h3>
+  <p><strong>ID:</strong> {{ customer.id }}</p>
+  <p><strong>Nombre:</strong> {{ customer.name }}</p>
+  <p><strong>Edad:</strong> {{ customer.age }} años</p>
+  <p><strong>Altura:</strong> {{ customer.stature }} cm</p>
+  <p><strong>Peso Actual:</strong> {{ customer.actualWeight }} kg</p>
+  <p><strong>Entrenador Asignado:</strong> {{ customer.assignedTrainerId ? customer.assignedTrainerId : 'Ninguno' }}</p>
+  <p><strong>Plan de Entrenamiento:</strong> {{ customer.assignedTrainingPlanId ? customer.assignedTrainingPlanId : 'Sin asignar' }}</p>
+  <hr />
 </div>
+
+<ng-template #loading>
+  <p>Cargando datos...</p>
+</ng-template>
