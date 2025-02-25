@@ -1,9 +1,15 @@
-<div *ngIf="bddData; else loading">
+<div *ngIf="bddData && bddData.length > 0; else loading">
+  <h2>Clientes</h2>
+  <ul>
+    <li *ngFor="let item of bddData">
+      <p><strong>Nombre:</strong> {{ item.name }}</p>
+      <p><strong>Peso Actual:</strong> {{ item.actualWeight }}</p>
+      <hr>
+    </li>
+  </ul>
 
-  <h2>Cliente</h2>
-  <p><strong>Nombre:</strong> {{ bddData?.name }}</p>
-  <p><strong>Peso Actual:</strong> {{ bddData?.actualWeight }}</p>
-  <p>{{bddData}}</p>
+  <!-- Mostrar todo el array en formato JSON para depuración -->
+  <pre>{{ bddData | json }}</pre>
 </div>
 
 <ng-template #loading>
