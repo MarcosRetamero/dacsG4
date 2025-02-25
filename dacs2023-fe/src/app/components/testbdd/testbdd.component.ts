@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { BddService } from '../services/bdd.service';
-import { BddResponse } from '../models/bdd.model';
+import { BddService } from '../../core/services/bdd.service'; // Asegúrate de importar el servicio correctamente
+import { BddResponse } from '../../core/models/bdd.model'; // Asegúrate de importar el modelo correctamente
 
 @Component({
   selector: 'app-testbdd',
