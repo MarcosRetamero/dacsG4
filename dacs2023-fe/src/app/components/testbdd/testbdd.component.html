@@ -1,13 +1,8 @@
 <div *ngIf="bddData; else loading">
-  <h3>Cliente</h3>
-  <p><strong>ID:</strong> {{ customer.id }}</p>
-  <p><strong>Nombre:</strong> {{ customer.name }}</p>
-  <p><strong>Edad:</strong> {{ customer.age }} años</p>
-  <p><strong>Altura:</strong> {{ customer.stature }} cm</p>
-  <p><strong>Peso Actual:</strong> {{ customer.actualWeight }} kg</p>
-  <p><strong>Entrenador Asignado:</strong> {{ customer.assignedTrainerId ? customer.assignedTrainerId : 'Ninguno' }}</p>
-  <p><strong>Plan de Entrenamiento:</strong> {{ customer.assignedTrainingPlanId ? customer.assignedTrainingPlanId : 'Sin asignar' }}</p>
-  <hr />
+
+  <h2>Cliente</h2>
+  <p><strong>Nombre:</strong> {{ bddData?.customer?.name }}</p>
+  <p><strong>Peso Actual:</strong> {{ bddData?.customer?.actualWeight }}</p>
 </div>
 
 <ng-template #loading>
