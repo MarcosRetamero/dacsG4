@@ -1,8 +1,6 @@
-// testbdd.component.ts
 import { Component, OnInit } from '@angular/core';
-import { BddService } from '../../core/services/bdd.service';  // Asegúrate de que la ruta sea correcta
-import { BddResponse } from '../../core/models/bdd.model';
-import { HttpErrorResponse } from '@angular/common/http';  // Importar HttpErrorResponse
+import { BddService } from '../services/bdd.service';
+import { BddResponse } from '../models/bdd.model';
 
 @Component({
   selector: 'app-testbdd',
@@ -10,21 +8,19 @@ import { HttpErrorResponse } from '@angular/common/http';  // Importar HttpError
   styleUrls: ['./testbdd.component.css']
 })
 export class TestBddComponent implements OnInit {
-
   bddData: BddResponse | null = null;
 
-  
-
-  constructor(private bddService: BddService) { }
+  constructor(private bddService: BddService) {}
 
   ngOnInit(): void {
-    this.bddService.getBddData().subscribe({
-      next: (data: BddResponse) => {
-        this.bddData = data;
+    this.bddService.getBddData().subscribe(
+      (data : any) => {
+        console.log('Datos recibidos:', data); // 🟢 Muestra los datos en la consola
+        this.bddData = data; // Asigna los datos a la variable para el HTML
       },
-      error: (err: HttpErrorResponse) => {  // Especificamos el tipo de 'err'
-        console.error('Error al obtener los datos', err.message);
+      (error : any) => {
+        console.error('Error al obtener datos:', error); // 🔴 Muestra el error si falla la petición
       }
-    });
+    );
   }
 }
