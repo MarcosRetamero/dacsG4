@@ -1,8 +1,9 @@
 <div *ngIf="bddData; else loading">
 
   <h2>Cliente</h2>
-  <p><strong>Nombre:</strong> {{ bddData?.customer?.name }}</p>
-  <p><strong>Peso Actual:</strong> {{ bddData?.customer?.actualWeight }}</p>
+  <p><strong>Nombre:</strong> {{ bddData?.name }}</p>
+  <p><strong>Peso Actual:</strong> {{ bddData?.actualWeight }}</p>
+  <p>{{bddData}}</p>
 </div>
 
 <ng-template #loading>
