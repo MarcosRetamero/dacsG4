@@ -1,0 +1,85 @@
+<body>
+  <div class="container">
+    <h1><strong>Rutina</strong></h1>
+
+    <form [formGroup]="routineForm" (ngSubmit)="saveRoutine()" class="routine-form">
+      <div class="form-group">
+        <label for="routineName">Nombre de la Rutina</label>
+        <input id="routineName" formControlName="routineName" type="text" placeholder="Ej: Rutina de Fuerza" />
+      </div>
+
+      <div class="form-group">
+        <label for="day">Día de la Semana</label>
+        <select id="day" formControlName="day" *ngIf="!showExerciseForm">
+          <option value="">Selecciona un día</option>
+          <option value="Lunes">Lunes</option>
+          <option value="Martes">Martes</option>
+          <option value="Miércoles">Miércoles</option>
+          <option value="Jueves">Jueves</option>
+          <option value="Viernes">Viernes</option>
+          <option value="Sábado">Sábado</option>
+          <option value="Domingo">Domingo</option>
+        </select>
+        <div *ngIf="showExerciseForm">{{ routineForm.get('day')?.value }}</div>
+      </div>
+
+      <div *ngIf="showExerciseForm" class="exercise-form">
+        <h3><strong>Añadir Nuevo Ejercicio</strong></h3>
+
+        <div class="form-group">
+          <label for="exercise">Seleccionar Ejercicio</label>
+          <select id="exercise" (change)="selectExercise($event)">
+            <option value="">Selecciona un ejercicio</option>
+            <option *ngFor="let exercise of availableExercises" [value]="exercise.id">{{ exercise.name }}</option>
+          </select>
+        </div>
+
+        <div *ngIf="selectedExercise">
+          <div class="form-group">
+            <label for="sets">Series</label>
+            <input id="sets" formControlName="sets" type="number" min="1" />
+          </div>
+
+          <div class="form-group">
+            <label for="reps">Repeticiones</label>
+            <input id="reps" formControlName="reps" type="number" min="1" />
+          </div>
+          <div class="botones-usuario">
+            <button type="button" (click)="addExerciseToRoutine()">Añadir</button>
+            <button type="button" (click)="resetExerciseForm()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <table *ngIf="routine?.exercises && routine.exercises.length > 0">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Series</th>
+            <th>Repeticiones</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let exercise of routine.exercises">
+            <td>{{ exercise.name }}</td>
+            <td>{{ exercise.sets }}</td>
+            <td>{{ exercise.reps }}</td>
+            <td>
+              <button type="button" (click)="editExercise(exercise)">Editar</button>
+              <button type="button" (click)="removeExercise(exercise.id)">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="botones-usuario">
+        <!-- Botón de Agregar Ejercicio siempre visible -->
+        <button type="button" (click)="showExerciseFormHandler()" [disabled]="showExerciseForm">Agregar Ejercicio</button>
+
+        <!-- Botón de Guardar Rutina visible solo si hay ejercicios -->
+        <button type="submit" [disabled]="routine.exercises.length === 0">Guardar Rutina</button>
+      </div>
+    </form>
+  </div>
+</body>

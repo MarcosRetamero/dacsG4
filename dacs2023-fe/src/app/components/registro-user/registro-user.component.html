@@ -1,8 +1,7 @@
-
 <body>
   <div class="registro-user">
     <h1>Registro de Usuario</h1>
-  
+
     <form [formGroup]="formulario" (ngSubmit)="onSubmit()">
       <!-- Nombre -->
       <div class="form-group">
@@ -13,8 +12,14 @@
           class="form-control"
           formControlName="nombre"
           placeholder="Tu nombre"
+          [class.disabled-input]="vieneDeDashboard"
         />
-        <div *ngIf="formulario.get('nombre')?.invalid && formulario.get('nombre')?.touched">
+        <div
+          *ngIf="
+            formulario.get('nombre')?.invalid &&
+            formulario.get('nombre')?.touched
+          "
+        >
           <small *ngIf="formulario.get('nombre')?.errors?.['required']">
             El nombre es obligatorio.
           </small>
@@ -23,7 +28,7 @@
           </small>
         </div>
       </div>
-  
+
       <!-- Edad -->
       <div class="form-group">
         <label for="edad">Edad</label>
@@ -34,7 +39,11 @@
           formControlName="edad"
           placeholder="Tu edad"
         />
-        <div *ngIf="formulario.get('edad')?.invalid && formulario.get('edad')?.touched">
+        <div
+          *ngIf="
+            formulario.get('edad')?.invalid && formulario.get('edad')?.touched
+          "
+        >
           <small *ngIf="formulario.get('edad')?.errors?.['required']">
             La edad es obligatoria.
           </small>
@@ -46,7 +55,7 @@
           </small>
         </div>
       </div>
-  
+
       <!-- Estatura -->
       <div class="form-group">
         <label for="estatura">Estatura (cm)</label>
@@ -57,7 +66,12 @@
           formControlName="estatura"
           placeholder="Tu estatura en cm"
         />
-        <div *ngIf="formulario.get('estatura')?.invalid && formulario.get('estatura')?.touched">
+        <div
+          *ngIf="
+            formulario.get('estatura')?.invalid &&
+            formulario.get('estatura')?.touched
+          "
+        >
           <small *ngIf="formulario.get('estatura')?.errors?.['required']">
             La estatura es obligatoria.
           </small>
@@ -69,7 +83,7 @@
           </small>
         </div>
       </div>
-  
+
       <!-- Peso -->
       <div class="form-group">
         <label for="peso">Peso (kg)</label>
@@ -80,7 +94,11 @@
           formControlName="peso"
           placeholder="Tu peso en kg"
         />
-        <div *ngIf="formulario.get('peso')?.invalid && formulario.get('peso')?.touched">
+        <div
+          *ngIf="
+            formulario.get('peso')?.invalid && formulario.get('peso')?.touched
+          "
+        >
           <small *ngIf="formulario.get('peso')?.errors?.['required']">
             El peso es obligatorio.
           </small>
@@ -92,8 +110,8 @@
           </small>
         </div>
       </div>
-  
-      <button type="submit" class="btn btn-primary" [disabled]="formulario.invalid">
+
+      <button mat-raised-button type="submit" [disabled]="!formulario.valid">
         Registrar
       </button>
     </form>
@@ -102,6 +120,3 @@
 <footer class="footer">
   <p>© 2024 MuscleHub. Todos los derechos reservados.</p>
 </footer>
-
-
-  

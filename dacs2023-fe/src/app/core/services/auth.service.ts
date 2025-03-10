@@ -36,6 +36,19 @@ export class AuthService {
       });
     }
   }
+  getUserId(): Observable<string | null> {
+    return new Observable(observer => {
+      const token = this.getStoredToken();
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1])); // Decodificar el token JWT
+        const userId = payload.sub; // Keycloak usa 'sub' como identificador único
+        observer.next(userId);
+      } else {
+        observer.next(null);
+      }
+      observer.complete();
+    });
+  }
 
   // Obtener información del usuario (perfil)
   getUserInfo(): Observable<any> {
