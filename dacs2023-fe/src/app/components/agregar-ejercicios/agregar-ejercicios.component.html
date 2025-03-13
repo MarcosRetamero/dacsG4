@@ -10,7 +10,7 @@
 
       <div class="form-group">
         <label for="day">Día de la Semana</label>
-        <select id="day" formControlName="day" *ngIf="!showExerciseForm">
+        <select id="day" formControlName="day" *ngIf="!showExerciseForm" [disabled]="isDayDisabled">
           <option value="">Selecciona un día</option>
           <option value="Lunes">Lunes</option>
           <option value="Martes">Martes</option>
@@ -23,6 +23,7 @@
         <div *ngIf="showExerciseForm">{{ routineForm.get('day')?.value }}</div>
       </div>
 
+      <!-- Formulario para agregar ejercicio -->
       <div *ngIf="showExerciseForm" class="exercise-form">
         <h3><strong>Añadir Nuevo Ejercicio</strong></h3>
 
@@ -37,12 +38,12 @@
         <div *ngIf="selectedExercise">
           <div class="form-group">
             <label for="sets">Series</label>
-            <input id="sets" formControlName="sets" type="number" min="1" />
+            <input id="sets" formControlName="sets" type="number" min="1" [value]="selectedExercise?.sets" />
           </div>
 
           <div class="form-group">
             <label for="reps">Repeticiones</label>
-            <input id="reps" formControlName="reps" type="number" min="1" />
+            <input id="reps" formControlName="reps" type="number" min="1" [value]="selectedExercise?.reps" />
           </div>
           <div class="botones-usuario">
             <button type="button" (click)="addExerciseToRoutine()">Añadir</button>
@@ -51,6 +52,7 @@
         </div>
       </div>
 
+      <!-- Tabla de ejercicios añadidos a la rutina -->
       <table *ngIf="routine?.exercises && routine.exercises.length > 0">
         <thead>
           <tr>

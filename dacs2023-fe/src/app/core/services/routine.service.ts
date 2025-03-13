@@ -1,75 +1,108 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from './auth.service'; // Asegúrate de tener un servicio de autenticación
+import { AuthService } from './auth.service';
 
-// Define la interfaz de Routine
+export interface Exercise {
+  id: number;
+  routineId: number;
+  name: string;
+  image: string;
+  description: string;
+  reps: number;
+  sets: number;
+}
+
 export interface Routine {
   id: number;
-  userId: string;  // ID de usuario como string (Keycloak)
+  userId: string;
   routineName: string;
   goal: number;
-  day: number; // Día de la semana (1 a 7)
+  day: number;
+  exercises?: Exercise[];
+}
+
+export interface ExerciseImage {
+  exercise: {
+    id: number;
+    name: string;
+    description: string;
+    exercise_base: number;
+  };
+  image: {
+    id: number;
+    image: string;
+    exercise_base: number;
+  };
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class RoutineService {
-  private apiUrl = 'http://localhost:9001/bff/backend/routines'; // Reemplaza con tu endpoint
+export class WorkoutService {
+  private routineApiUrl = 'http://localhost:9001/bff/backend/routines';
+  private exerciseApiUrl = 'http://localhost:9001/bff/backend/exercises';
+  private exerciseImagesApiUrl = 'http://localhost:9001/bff/conector/exercises/with-images';
   private token: string | null = null;
 
   constructor(private http: HttpClient, private authService: AuthService) {
-    // Obtiene el token de autenticación
     this.authService.getToken().subscribe((token: string | null) => {
       this.token = token;
     });
   }
 
-  // Obtener todas las rutinas de un cliente
+  private getHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      Authorization: `Bearer ${this.token}`,
+      'Content-Type': 'application/json'
+    });
+  }
+
+  /** OBTENER EJERCICIOS DISPONIBLES CON IMÁGENES */
+  getAvailableExercises(): Observable<ExerciseImage[]> {
+    return this.http.get<ExerciseImage[]>(this.exerciseImagesApiUrl);
+  }
+
+  /** RUTINAS */
   getRoutinesByUserId(userId: string): Observable<Routine[]> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.token}`
-    });
-
-    return this.http.get<Routine[]>(`${this.apiUrl}/user/${userId}`, { headers });
+    return this.http.get<Routine[]>(`${this.routineApiUrl}/user/${userId}`, { headers: this.getHeaders() });
   }
 
-  // Obtener una rutina por su ID
   getRoutineById(id: number): Observable<Routine> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.token}`
-    });
-
-    return this.http.get<Routine>(`${this.apiUrl}/${id}`, { headers });
+    return this.http.get<Routine>(`${this.routineApiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  // Crear una nueva rutina
   createRoutine(routine: Routine): Observable<Routine> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.token}`,
-      'Content-Type': 'application/json'
-    });
-
-    return this.http.post<Routine>(this.apiUrl, routine, { headers });
+    return this.http.post<Routine>(this.routineApiUrl, routine, { headers: this.getHeaders() });
   }
 
-  // Actualizar una rutina existente
   updateRoutine(id: number, routine: Routine): Observable<Routine> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.token}`,
-      'Content-Type': 'application/json'
-    });
-
-    return this.http.put<Routine>(`${this.apiUrl}/${id}`, routine, { headers });
+    return this.http.put<Routine>(`${this.routineApiUrl}/${id}`, routine, { headers: this.getHeaders() });
   }
 
-  // Eliminar una rutina por su ID
   deleteRoutine(id: number): Observable<void> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.token}`
-    });
+    return this.http.delete<void>(`${this.routineApiUrl}/${id}`, { headers: this.getHeaders() });
+  }
 
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
+  /** EJERCICIOS */
+  getExercisesByRoutineId(routineId: number): Observable<Exercise[]> {
+    return this.http.get<Exercise[]>(`${this.exerciseApiUrl}/routine/${routineId}`, { headers: this.getHeaders() });
+  }
+
+  createExercise(exercise: Exercise): Observable<Exercise> {
+    return this.http.post<Exercise>(this.exerciseApiUrl, exercise, { headers: this.getHeaders() });
+  }
+
+  updateExercise(id: number, exercise: Exercise): Observable<Exercise> {
+    return this.http.put<Exercise>(`${this.exerciseApiUrl}/${id}`, exercise, { headers: this.getHeaders() });
+  }
+
+  deleteExercise(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.exerciseApiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  /** CREAR RUTINA CON EJERCICIOS */
+  createRoutineWithExercises(routine: Routine): Observable<Routine> {
+    return this.http.post<Routine>(`${this.routineApiUrl}/with-exercises`, routine, { headers: this.getHeaders() });
   }
 }

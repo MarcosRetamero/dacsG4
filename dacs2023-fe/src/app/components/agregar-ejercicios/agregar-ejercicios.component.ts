@@ -1,22 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
-interface Exercise {
-  id: number;
-  name: string;
-  image: string;
-  description: string;
-  sets: number;
-  reps: number;
-}
-
-interface Routine {
-  id?: number;
-  routineName: string;
-  day: string;
-  goal: number;
-  exercises: Exercise[];
-}
+import { WorkoutService, Exercise, Routine, ExerciseImage } from 'src/app/core/services/routine.service';
 
 @Component({
   selector: 'app-create-routine',
@@ -25,125 +9,188 @@ interface Routine {
 })
 export class CreateRoutineComponent implements OnInit {
   routineForm!: FormGroup;
-  availableExercises: Exercise[] = [
-    { id: 1, name: 'Sentadillas', image: '/assets/sentadillas.jpg', description: 'Ejercicio para piernas', sets: 3, reps: 12 },
-    { id: 2, name: 'Press de banca', image: '/assets/press-banca.jpg', description: 'Ejercicio para pecho', sets: 4, reps: 10 },
-    { id: 3, name: 'Dominadas', image: '/assets/dominadas.jpg', description: 'Ejercicio para espalda', sets: 3, reps: 8 },
-    { id: 4, name: 'Curl de bíceps', image: '/assets/curl-biceps.jpg', description: 'Ejercicio para brazos', sets: 3, reps: 12 }
-  ];
-
+  availableExercises: Exercise[] = [];
   selectedExercise: Exercise | null = null;
   showExerciseForm = false;
-  isDayDisabled = false; // Variable para bloquear el selector de día
+  isDayDisabled = false;
   routine!: Routine;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private workoutService: WorkoutService
+  ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     console.log('History state en agregar-ejercicios:', history.state);
+    this.initializeForm();
+    this.loadExercises();
+    this.loadHistoryState();
+  }
 
+  private initializeForm(): void {
     this.routineForm = this.fb.group({
-      routineName: ['Rutina Personalizada', Validators.required],
-      day: ['Lunes', Validators.required],
-      sets: [3, Validators.required],
-      reps: [10, Validators.required],
+      routineName: ['', Validators.required],
+      day: [null, [Validators.required, Validators.min(1), Validators.max(7)]],
+      sets: [null, [Validators.required, Validators.min(1)]],
+      reps: [null, [Validators.required, Validators.min(1)]]
     });
 
-    this.routine = { routineName: 'Rutina Inicial', day: 'Lunes', goal: 100, exercises: [] };
+    // Initialize routine with empty exercises array to avoid undefined
+    this.routine = {
+      id: 0,
+      userId: '',
+      routineName: '',
+      day: 0,
+      goal: 0,
+      exercises: [] // Always initialize as empty array
+    };
+  }
 
-    if (history.state?.datosEjercicios) {
-      console.log('Datos recibidos en agregar-ejercicios:');
-      console.log('- Día:', history.state.datosEjercicios.dia);
-      console.log('- Ejercicios:', history.state.datosEjercicios.ejercicios);
+  private loadExercises(): void {
+    this.workoutService.getAvailableExercises().subscribe(
+      (exerciseImages: ExerciseImage[]) => {
+        // Transform ExerciseImage[] to Exercise[]
+        this.availableExercises = exerciseImages.map((exerciseData: ExerciseImage) => {
+          return {
+            id: exerciseData.exercise.id,
+            name: exerciseData.exercise.name,
+            description: exerciseData.exercise.description,
+            // Set default values for properties not provided by the API
+            sets: 3, // Default value
+            reps: 10, // Default value
+            image: exerciseData.image.image,
+            routineId: 0 // Default value
+          } as Exercise;
+        });
+      },
+      (error) => console.error('Error al obtener los ejercicios:', error)
+    );
+  }
 
-      this.routine.day = history.state.datosEjercicios.dia;
-      this.routine.exercises = history.state.datosEjercicios.ejercicios.map((ejercicio: any) => ({
-        id: Math.random(), // Generamos un ID temporal
+  private loadHistoryState(): void {
+    interface HistoryExerciseData {
+      name: string;
+      description: string;
+      sets: number;
+      reps: number;
+      id?: number;
+      image?: string;
+      routineId?: number;
+    }
+
+    interface HistoryStateData {
+      dia: number;
+      ejercicios: HistoryExerciseData[];
+    }
+
+    if (history.state && 'datosEjercicios' in history.state) {
+      const historyData = history.state.datosEjercicios as HistoryStateData;
+
+      this.routine.day = historyData.dia;
+
+      // Ensure exercises array exists before mapping
+      this.routine.exercises = historyData.ejercicios.map((ejercicio: HistoryExerciseData) => ({
+        id: ejercicio.id ?? Math.random(),
         name: ejercicio.name,
         description: ejercicio.description,
         sets: ejercicio.sets,
         reps: ejercicio.reps,
-        image: '' // Campo requerido por la interfaz
+        image: ejercicio.image ?? '',
+        routineId: ejercicio.routineId ?? 0
       }));
 
-      this.routineForm.patchValue({
-        day: history.state.datosEjercicios.dia
-      });
+      this.routineForm.patchValue({ day: historyData.dia });
     } else {
       console.log('No se recibieron datos en agregar-ejercicios');
     }
   }
 
-  selectExercise(event: Event) {
-    const selectElement = event.target as HTMLSelectElement;
-    const selectedValue = selectElement.value;
+  selectExercise(event: Event): void {
+    const selectedValue = (event.target as HTMLSelectElement).value;
     this.selectedExercise = this.availableExercises.find(e => e.id === Number(selectedValue)) || null;
   }
 
-  addExerciseToRoutine() {
+  addExerciseToRoutine(): void {
     if (this.selectedExercise) {
-      // Si el ejercicio ya existe, actualizarlo
-      const index = this.routine.exercises.findIndex(e => e.id === this.selectedExercise?.id);
-      if (index !== -1) {
-        this.routine.exercises[index] = {
-          ...this.selectedExercise,
-          sets: this.routineForm.get('sets')?.value,
-          reps: this.routineForm.get('reps')?.value
-        };
-      } else {
-        // Si es nuevo, agregarlo
-        this.routine.exercises.push({
-          ...this.selectedExercise,
-          sets: this.routineForm.get('sets')?.value,
-          reps: this.routineForm.get('reps')?.value
-        });
+      // Ensure exercises array exists
+      if (!this.routine.exercises) {
+        this.routine.exercises = [];
       }
+
+      const existingIndex = this.routine.exercises.findIndex(e => e.id === this.selectedExercise!.id);
+      const newExercise = {
+        ...this.selectedExercise,
+        sets: this.routineForm.value.sets,
+        reps: this.routineForm.value.reps
+      };
+
+      if (existingIndex !== -1) {
+        this.routine.exercises[existingIndex] = newExercise;
+      } else {
+        this.routine.exercises.push(newExercise);
+      }
+
       this.resetExerciseForm();
     }
   }
 
-  removeExercise(id: number) {
-    this.routine.exercises = this.routine.exercises.filter(e => e.id !== id);
+  removeExercise(id: number): void {
+    // Ensure exercises array exists before filtering
+    if (this.routine.exercises) {
+      this.routine.exercises = this.routine.exercises.filter(e => e.id !== id);
+    }
   }
 
-  saveRoutine() {
-    if (this.routineForm.valid && this.routine.exercises.length > 0) {
-      console.log('¡Rutina guardada con éxito!');
-      console.log('Detalles de la rutina:', this.routine);
-      this.resetRoutineForm();
-      this.showExerciseForm = false; // Esto hará que el selector de día vuelva a estar visible
-      this.isDayDisabled = false;    // Por si acaso también reseteamos esta bandera
+  saveRoutine(): void {
+    // Ensure exercises array exists before checking length
+    const exercisesLength = this.routine.exercises?.length ?? 0;
+
+    if (this.routineForm.valid && exercisesLength > 0) {
+      // Update routine with form values before saving
+      this.routine.routineName = this.routineForm.value.routineName;
+      this.routine.day = this.routineForm.value.day;
+
+      console.log('¡Rutina guardada con éxito!', this.routine);
+      this.workoutService.createRoutineWithExercises(this.routine).subscribe(
+        (response) => {
+          console.log('Rutina y ejercicios guardados:', response);
+          this.resetRoutineForm();
+          this.showExerciseForm = false;
+          this.isDayDisabled = false;
+        },
+        (error) => console.error('Error al guardar la rutina y ejercicios:', error)
+      );
     } else {
       console.log('No se pudo guardar la rutina. Asegúrate de completar todos los campos.');
     }
   }
 
-  resetExerciseForm() {
+  resetExerciseForm(): void {
     this.selectedExercise = null;
-    this.routineForm.patchValue({
-      sets: 3,
-      reps: 10
-    });
+    this.routineForm.patchValue({ sets: null, reps: null });
     this.showExerciseForm = false;
-    this.isDayDisabled = true; // Bloqueamos el selector de día cuando se agrega un ejercicio
+    this.isDayDisabled = true;
   }
 
-  resetRoutineForm() {
-    this.routineForm.reset({
-      routineName: 'Rutina Personalizada',
-      day: 'Lunes'
-    });
-    this.routine = { routineName: 'Rutina Inicial', day: 'Lunes', goal: 100, exercises: [] };
-    this.isDayDisabled = false; // Desbloqueamos el selector de día al restablecer la rutina
+  resetRoutineForm(): void {
+    this.routineForm.reset();
+    this.routine = {
+      id: 0,
+      userId: '',
+      routineName: '',
+      day: 0,
+      goal: 0,
+      exercises: [] // Always initialize as empty array
+    };
+    this.isDayDisabled = false;
   }
 
-  showExerciseFormHandler() {
+  showExerciseFormHandler(): void {
     this.showExerciseForm = true;
-    this.isDayDisabled = true;  // Bloqueamos el selector de día al mostrar el formulario
+    this.isDayDisabled = true;
   }
 
-  // Agregar método para editar ejercicio
-  editExercise(exercise: Exercise) {
+  editExercise(exercise: Exercise): void {
     this.selectedExercise = exercise;
     this.showExerciseForm = true;
     this.routineForm.patchValue({
