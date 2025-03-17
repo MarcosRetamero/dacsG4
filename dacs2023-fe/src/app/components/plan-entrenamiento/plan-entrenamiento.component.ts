@@ -12,9 +12,9 @@ export class PlanEntrenamientoComponent implements OnInit {
     id: 0,
     userId: '',
     day: 1,
-    routineName: '',
-    exercises: []
+    routineName: ''
   };
+  exercises: Exercise[] = [];
 
   constructor(
     private router: Router,
@@ -36,7 +36,7 @@ export class PlanEntrenamientoComponent implements OnInit {
         this.routine.userId = historyData.userId;
       }
 
-      this.routine.day = Number(historyData.diaSeleccionado);
+      this.routine.day = Number(historyData.diaSeleccionado) % 7;
       this.loadRoutine(this.routine.day);
     } else {
       console.log('No se recibieron datos en plan-entrenamiento');
@@ -55,29 +55,23 @@ export class PlanEntrenamientoComponent implements OnInit {
         const foundRoutine = routines.find(r => r.day === day);
 
         if (foundRoutine) {
-          this.routine.id = foundRoutine.id;
-          this.routine.routineName = foundRoutine.routineName;
-
-          // If foundRoutine already has exercises, use them
-          if (foundRoutine.exercises && foundRoutine.exercises.length > 0) {
-            this.routine.exercises = foundRoutine.exercises;
-          }
-          // Otherwise fetch exercises separately
-          else if (foundRoutine.id) {
-            this.workoutService.getExercisesByRoutineId(foundRoutine.id).subscribe(
-              (exercises: Exercise[]) => {
-                this.routine.exercises = exercises;
-              },
-              (error) => console.error('Error al obtener ejercicios', error)
-            );
-          }
+          this.routine = foundRoutine;
+          this.loadExercises(foundRoutine.id);
         } else {
           console.log('No hay rutina registrada para este día.');
-          // Reset exercises when no routine is found
-          this.routine.exercises = [];
+          this.exercises = [];
         }
       },
       (error) => console.error('Error al obtener la rutina', error)
+    );
+  }
+
+  loadExercises(routineId: number): void {
+    this.workoutService.getExercisesByRoutineId(routineId).subscribe(
+      (exercises: Exercise[]) => {
+        this.exercises = exercises;
+      },
+      (error) => console.error('Error al obtener ejercicios', error)
     );
   }
 
@@ -108,20 +102,34 @@ export class PlanEntrenamientoComponent implements OnInit {
 
     const datosEjercicios = {
       id: this.routine.id,
-      dia: this.routine.day,
-      ejercicios: this.routine.exercises!.map((exercise: Exercise) => ({
+      day: this.routine.day,
+      ejercicios: this.exercises.map((exercise: Exercise) => ({
         id: exercise.id,
         name: exercise.name,
         description: exercise.description,
         sets: exercise.sets,
         reps: exercise.reps,
         image: exercise.image || '',
-        routineId: exercise.routineId
+        routineId: this.routine.id
       })),
     };
 
     this.router.navigate(['/agregar-ejercicios'], {
       state: { datosEjercicios },
     });
+  }
+
+  getDayName(day: number): string {
+    const days = [
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+      'Domingo'
+    ];
+    const adjustedIndex = ((day - 1) % 7 + 7) % 7;
+    return days[adjustedIndex] || 'Día no válido';
   }
 }
