@@ -2,6 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { WorkoutService, Exercise, Routine, ExerciseImage } from 'src/app/core/services/routine.service';
 
+// Local interface for managing exercises during routine creation
+interface RoutineCreation extends Routine {
+  exercises?: Exercise[];
+}
+
 @Component({
   selector: 'app-create-routine',
   templateUrl: './agregar-ejercicios.component.html',
@@ -13,7 +18,7 @@ export class CreateRoutineComponent implements OnInit {
   selectedExercise: Exercise | null = null;
   showExerciseForm = false;
   isDayDisabled = false;
-  routine!: Routine;
+  routine!: RoutineCreation;
 
   constructor(
     private fb: FormBuilder,

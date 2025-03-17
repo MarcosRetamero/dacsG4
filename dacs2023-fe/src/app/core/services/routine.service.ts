@@ -18,7 +18,6 @@ export interface Routine {
   userId: string;
   routineName: string;
   day: number;
-  exercises?: Exercise[];
 }
 
 export interface ExerciseImage {
@@ -98,10 +97,5 @@ export class WorkoutService {
 
   deleteExercise(id: number): Observable<void> {
     return this.http.delete<void>(`${this.exerciseApiUrl}/${id}`, { headers: this.getHeaders() });
-  }
-
-  /** CREAR RUTINA CON EJERCICIOS */
-  createRoutineWithExercises(routine: Routine): Observable<Routine> {
-    return this.http.post<Routine>(`${this.routineApiUrl}/with-exercises`, routine, { headers: this.getHeaders() });
   }
 }
