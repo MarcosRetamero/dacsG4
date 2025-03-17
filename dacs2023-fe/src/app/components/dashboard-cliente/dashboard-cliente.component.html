@@ -61,12 +61,12 @@
           <h4>Día {{ dia.day }}</h4>
           <p>{{ dia.routineName }}</p>
           <ul>
-            <li *ngFor="let ejercicio of dia.exercises?.slice(0, 2)">
+            <li *ngFor="let ejercicio of getExercisesForRoutine(dia.id).slice(0, 2)">
               <p>{{ ejercicio.name }}</p>
             </li>
           </ul>
-          <p *ngIf="dia.exercises && dia.exercises.length > 2">
-            y {{ dia.exercises.length - 2 }} más...
+          <p *ngIf="getExercisesForRoutine(dia.id).length > 2">
+            y {{ getExercisesForRoutine(dia.id).length - 2 }} más...
           </p>
           <button class="btn-editar-rutina" (click)="editarRutina(dia)">
             Ver
