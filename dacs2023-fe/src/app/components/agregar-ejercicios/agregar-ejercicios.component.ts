@@ -79,14 +79,14 @@ export class CreateRoutineComponent implements OnInit {
     }
 
     interface HistoryStateData {
-      dia: number;
+      day: number;
       ejercicios: HistoryExerciseData[];
     }
 
     if (history.state && 'datosEjercicios' in history.state) {
       const historyData = history.state.datosEjercicios as HistoryStateData;
 
-      this.routine.day = historyData.dia;
+      this.routine.day = historyData.day;
 
       // Ensure exercises array exists before mapping
       this.routine.exercises = historyData.ejercicios.map((ejercicio: HistoryExerciseData) => ({
@@ -99,7 +99,7 @@ export class CreateRoutineComponent implements OnInit {
         routineId: ejercicio.routineId ?? 0
       }));
 
-      this.routineForm.patchValue({ day: historyData.dia });
+      this.routineForm.patchValue({ day: historyData.day });
     } else {
       console.log('No se recibieron datos en agregar-ejercicios');
     }

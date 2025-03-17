@@ -3,20 +3,20 @@
     <h1>Rutina</h1>
 
     <div class="day-card">
-      <h2 class="day-title">{{ Routine.day }}</h2>
-      <p class="muscle-groups">{{ Routine.routineName }}</p>
+      <h2 class="day-title">{{ routine.day }}</h2>
+      <p class="muscle-groups">{{ routine.routineName }}</p>
 
       <div class="exercise-list">
-        <div *ngFor="let exercise of Routine.exercises" class="exercise-card">
+        <div *ngFor="let exercise of routine.exercises" class="exercise-card">
           <div class="image-container">
             <!-- Si hay imagen, se renderiza, si no, se muestra un mensaje -->
             <img
-              *ngIf="exercise.imageUrl"
-              [src]="exercise.imageUrl"
+              *ngIf="exercise.image"
+              [src]="exercise.image"
               [alt]="'Demostración de ' + exercise.name"
             />
             <div
-              *ngIf="!exercise.imageUrl"
+              *ngIf="!exercise.image"
               class="w-full h-full flex items-center justify-center text-muted-foreground"
             >
               Imagen del ejercicio
@@ -37,9 +37,9 @@
         </div>
       </div>
       <div class="botones-usuario">
-        <button (click)="EditarRutina()">Editar rutina</button>
-        <button (click)="EliminarRutina()">Eliminar rutina</button>
-        <button (click)="Atras()">Atrás</button>
+        <button (click)="editRoutine()">Editar rutina</button>
+        <button (click)="deleteRoutine()">Eliminar rutina</button>
+        <button (click)="goBack()">Atrás</button>
       </div>
     </div>
   </div>

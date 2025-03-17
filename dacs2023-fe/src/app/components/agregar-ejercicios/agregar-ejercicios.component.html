@@ -53,7 +53,7 @@
       </div>
 
       <!-- Tabla de ejercicios añadidos a la rutina -->
-      <table ngIf="routine?.exercises?.length">
+      <table *ngIf="routine?.exercises?.length">
         <thead>
           <tr>
             <th>Nombre</th>
@@ -63,13 +63,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr ngFor="let exercise of routine?.exercises">
-            <td>{{ exercise.name }}</td>
-            <td>{{ exercise.sets }}</td>
-            <td>{{ exercise.reps }}</td>
+          <tr *ngFor="let i of routine.exercises.keys()">
+            <td>{{ routine.exercises[i].name }}</td>
+            <td>{{ routine.exercises[i].sets }}</td>
+            <td>{{ routine.exercises[i].reps }}</td>
             <td>
-              <button type="button" (click)="editExercise(exercise)">Editar</button>
-              <button type="button" (click)="removeExercise(exercise.id)">Eliminar</button>
+              <button type="button" (click)="editExercise(routine.exercises[i])">Editar</button>
+              <button type="button" (click)="removeExercise(routine.exercises[i].id)">Eliminar</button>
             </td>
           </tr>
         </tbody>

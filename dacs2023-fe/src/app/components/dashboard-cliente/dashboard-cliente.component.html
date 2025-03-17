@@ -58,15 +58,15 @@
       <h3>Plan de Entrenamiento</h3>
       <div class="dias-container">
         <div class="dia" *ngFor="let dia of planEntrenamiento">
-          <h4>{{ dia.dia }}</h4>
-          <p>{{ dia.grupoMuscular }}</p>
+          <h4>Día {{ dia.day }}</h4>
+          <p>{{ dia.routineName }}</p>
           <ul>
-            <li *ngFor="let ejercicio of dia.ejercicios.slice(0, 2)">
-              <p>{{ ejercicio.nombre }}</p>
+            <li *ngFor="let ejercicio of dia.exercises?.slice(0, 2)">
+              <p>{{ ejercicio.name }}</p>
             </li>
           </ul>
-          <p *ngIf="dia.ejercicios.length > 2">
-            y {{ dia.ejercicios.length - 2 }} más...
+          <p *ngIf="dia.exercises && dia.exercises.length > 2">
+            y {{ dia.exercises.length - 2 }} más...
           </p>
           <button class="btn-editar-rutina" (click)="editarRutina(dia)">
             Ver
