@@ -141,23 +141,44 @@ export class CreateRoutineComponent implements OnInit {
   }
 
   saveRoutine(): void {
-    // Ensure exercises array exists before checking length
     const exercisesLength = this.routine.exercises?.length ?? 0;
 
     if (this.routineForm.valid && exercisesLength > 0) {
-      // Update routine with form values before saving
-      this.routine.routineName = this.routineForm.value.routineName;
-      this.routine.day = this.routineForm.value.day;
+      // Create a routine object without exercises
+      const routineToCreate: Routine = {
+        id: 0,
+        userId: this.routine.userId,
+        routineName: this.routineForm.value.routineName,
+        day: this.routineForm.value.day
+      };
 
-      console.log('¡Rutina guardada con éxito!', this.routine);
-      this.workoutService.createRoutineWithExercises(this.routine).subscribe(
-        (response) => {
-          console.log('Rutina y ejercicios guardados:', response);
-          this.resetRoutineForm();
-          this.showExerciseForm = false;
-          this.isDayDisabled = false;
+      // First create the routine
+      this.workoutService.createRoutine(routineToCreate).subscribe(
+        (createdRoutine) => {
+          console.log('Rutina creada:', createdRoutine);
+
+          // Then create each exercise with the routine ID
+          const exerciseCreationPromises = this.routine.exercises?.map(exercise => {
+            const exerciseToCreate: Exercise = {
+              ...exercise,
+              routineId: createdRoutine.id
+            };
+            return this.workoutService.createExercise(exerciseToCreate).toPromise();
+          }) || [];
+
+          // Wait for all exercises to be created
+          Promise.all(exerciseCreationPromises)
+            .then(() => {
+              console.log('Todos los ejercicios creados exitosamente');
+              this.resetRoutineForm();
+              this.showExerciseForm = false;
+              this.isDayDisabled = false;
+            })
+            .catch(error => {
+              console.error('Error al crear los ejercicios:', error);
+            });
         },
-        (error) => console.error('Error al guardar la rutina y ejercicios:', error)
+        (error) => console.error('Error al crear la rutina:', error)
       );
     } else {
       console.log('No se pudo guardar la rutina. Asegúrate de completar todos los campos.');

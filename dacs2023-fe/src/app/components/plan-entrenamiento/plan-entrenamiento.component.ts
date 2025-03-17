@@ -57,7 +57,6 @@ export class PlanEntrenamientoComponent implements OnInit {
         if (foundRoutine) {
           this.routine.id = foundRoutine.id;
           this.routine.routineName = foundRoutine.routineName;
-          this.routine.goal = foundRoutine.goal || 0;
 
           // If foundRoutine already has exercises, use them
           if (foundRoutine.exercises && foundRoutine.exercises.length > 0) {
