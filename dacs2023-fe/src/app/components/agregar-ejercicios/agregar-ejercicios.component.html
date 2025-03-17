@@ -53,7 +53,7 @@
       </div>
 
       <!-- Tabla de ejercicios añadidos a la rutina -->
-      <table *ngIf="routine?.exercises && routine.exercises.length > 0">
+      <table ngIf="routine?.exercises?.length">
         <thead>
           <tr>
             <th>Nombre</th>
@@ -63,7 +63,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let exercise of routine.exercises">
+          <tr ngFor="let exercise of routine?.exercises">
             <td>{{ exercise.name }}</td>
             <td>{{ exercise.sets }}</td>
             <td>{{ exercise.reps }}</td>
@@ -80,7 +80,7 @@
         <button type="button" (click)="showExerciseFormHandler()" [disabled]="showExerciseForm">Agregar Ejercicio</button>
 
         <!-- Botón de Guardar Rutina visible solo si hay ejercicios -->
-        <button type="submit" [disabled]="routine.exercises.length === 0">Guardar Rutina</button>
+        <button type="submit" [disabled]="routine.exercises?.length === 0">Guardar Rutina</button>
       </div>
     </form>
   </div>

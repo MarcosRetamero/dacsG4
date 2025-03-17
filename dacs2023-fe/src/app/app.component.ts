@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { KeycloakService } from 'keycloak-angular';
 import { KeycloakProfile } from 'keycloak-js';
-import { ApiService } from './core/services/apiservice.service';
+import { WorkoutService, Exercise, Routine, ExerciseImage } from './core/services/routine.service'
 import { CustomerService } from './core/services/customer.service';
-import { TrainerService } from './core/services/trainer.service';
 import { ITestResponse } from './core/models/response.interface';
+import { ApiService } from './core/services/apiservice.service';
+
 
 @Component({
   selector: 'app-root',
@@ -25,7 +26,6 @@ export class AppComponent implements OnInit {
     private readonly keycloak: KeycloakService,
     private apiService: ApiService,
     private customerService: CustomerService,  // Inyectar CustomerService
-    private trainerService: TrainerService    // Inyectar TrainerService
   ) {}
 
   public async ngOnInit() {
@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
         this.perfilUsuario = await this.keycloak.loadUserProfile();
         console.log('User profile:', this.perfilUsuario);
 
-        // Verificar si el usuario tiene algún rol
+        // Verificar si el usuario tiene algÃºn rol
         this.role = await this.keycloak.isUserInRole("ROLE-A");
         console.log('Has ROLE-A:', this.role);
 
@@ -51,7 +51,7 @@ export class AppComponent implements OnInit {
         console.log('JWT Token:', token);
 
         // Llamar a la API para registrar o asociar al usuario con `trainer` o `customer`
-        this.registrarUsuarioSiEsNecesario();
+      //  this.registrarUsuarioSiEsNecesario();
 
         // Realizar las llamadas a la API
         this.apiService.getTest().subscribe({
@@ -77,7 +77,7 @@ export class AppComponent implements OnInit {
       console.error('Error in ngOnInit:', error);
     }
   }
-
+/*
   private registrarUsuarioSiEsNecesario() {
     if (this.userId) { // Verificamos que userId no sea null
       // Verificar si el usuario es un entrenador
@@ -104,7 +104,7 @@ export class AppComponent implements OnInit {
     }
   }
   
-
+*/
   public iniciarSesion() {
     this.keycloak.login();
   }
