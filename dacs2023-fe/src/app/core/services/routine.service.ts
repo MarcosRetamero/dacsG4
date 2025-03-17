@@ -17,7 +17,6 @@ export interface Routine {
   id: number;
   userId: string;
   routineName: string;
-  goal: number;
   day: number;
   exercises?: Exercise[];
 }

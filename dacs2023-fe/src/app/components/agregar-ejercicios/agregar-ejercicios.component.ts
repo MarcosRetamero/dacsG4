@@ -41,7 +41,6 @@ export class CreateRoutineComponent implements OnInit {
       userId: '',
       routineName: '',
       day: 0,
-      goal: 0,
       exercises: [] // Always initialize as empty array
     };
   }
@@ -179,7 +178,6 @@ export class CreateRoutineComponent implements OnInit {
       userId: '',
       routineName: '',
       day: 0,
-      goal: 0,
       exercises: [] // Always initialize as empty array
     };
     this.isDayDisabled = false;

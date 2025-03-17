@@ -3,12 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CustomerService, Customer } from 'src/app/core/services/customer.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { Observable } from 'rxjs';
-
-interface CustomerResponse {
-  customer: Customer;
-  isNewUser: boolean;
-}
 
 @Component({
   selector: 'app-registro-user',
@@ -19,6 +13,8 @@ export class RegistroUserComponent implements OnInit {
   formulario: FormGroup;
   vieneDeDashboard: boolean = false;
   userId: string = '';
+  errorMessage: string = ''; // Mensaje de error
+  isLoading: boolean = false; // Estado de carga
 
   constructor(
     private fb: FormBuilder,
@@ -56,14 +52,14 @@ export class RegistroUserComponent implements OnInit {
         this.userId = id;
         this.loadUserData(id);
       } else {
-        console.error('No se pudo obtener el ID del usuario');
+        this.errorMessage = 'No se pudo obtener el ID del usuario.';
       }
     });
   }
 
   loadUserData(id: string): void {
     this.customerService.isNewUser(id).subscribe(
-      (response: CustomerResponse) => {
+      (response) => {
         const { customer, isNewUser } = response;
         if (!isNewUser) {
           this.formulario.patchValue({
@@ -74,42 +70,60 @@ export class RegistroUserComponent implements OnInit {
           });
         }
       },
-      (error: Error) =>
-        console.error('Error al cargar datos del usuario:', error)
+      () => {
+        this.errorMessage = 'Error al cargar los datos del usuario.';
+      }
     );
   }
 
   onSubmit(): void {
     if (this.formulario.valid) {
+      this.isLoading = true; // Iniciar carga
+      this.errorMessage = ''; // Resetear mensaje de error
+
       const customerData: Customer = {
         id: this.userId,
         name: this.formulario.get('nombre')?.value,
         age: this.formulario.get('edad')?.value,
         stature: this.formulario.get('estatura')?.value,
+        goal: '',
         actualWeight: this.formulario.get('peso')?.value,
       };
 
       this.customerService.getCustomerById(this.userId).subscribe(
-        (existingCustomer: Customer) => {
-          // Si el usuario ya existe, actualizar
-          this.customerService
-            .updateCustomer(this.userId, customerData)
-            .subscribe(
-              () => this.router.navigate(['/dashboard-cliente']),
-              (error: Error) => console.error('Error al actualizar:', error)
-            );
-        },
         () => {
-          // Si no existe, crearlo
-          this.customerService.addCustomer(customerData).subscribe(
+          // Usuario existe, actualizar
+          this.customerService.updateCustomer(this.userId, customerData).subscribe(
             () => this.router.navigate(['/dashboard-cliente']),
-            (error: Error) => console.error('Error al registrar:', error)
+            (error: Error) => {
+              this.errorMessage = 'Error al actualizar los datos.';
+              console.error(error);
+              this.isLoading = false;
+            }
           );
+        },
+        (error) => {
+          if (error.status === 404) {
+            // Usuario no existe, crearlo
+            this.customerService.addCustomer(customerData).subscribe(
+              () => this.router.navigate(['/dashboard-cliente']),
+              (error: Error) => {
+                this.errorMessage = 'Error al registrar usuario.';
+                console.error(error);
+                this.isLoading = false;
+              }
+            );
+          } else {
+            this.errorMessage = 'Error al verificar usuario.';
+            console.error(error);
+            this.isLoading = false;
+          }
         }
       );
     }
   }
 }
+
 
 /* CODIGO MOCKEADO
 import { Component } from '@angular/core';

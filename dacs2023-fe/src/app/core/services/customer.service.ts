@@ -10,6 +10,7 @@ export interface Customer {
   age: number;
   stature: number;
   actualWeight: number;
+  goal: string
 }
 
 @Injectable({

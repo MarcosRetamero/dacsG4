@@ -13,7 +13,6 @@ export class PlanEntrenamientoComponent implements OnInit {
     userId: '',
     day: 1,
     routineName: '',
-    goal: 0,
     exercises: []
   };
 

@@ -1,6 +1,7 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { Chart } from 'chart.js/auto';
 import { Router } from '@angular/router';
+import { KeycloakService } from 'keycloak-angular';
 import { CustomerService } from 'src/app/core/services/customer.service';
 import { HistoricalProgressService } from 'src/app/core/services/historicalProgress.service';
 import { Routine, WorkoutService } from 'src/app/core/services/routine.service';
@@ -33,12 +34,20 @@ export class DashboardClienteComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private keycloakService: KeycloakService,
     private customerService: CustomerService,
     private historicalProgressService: HistoricalProgressService,
     private workoutService: WorkoutService
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    this.customerId = this.keycloakService.getKeycloakInstance().tokenParsed?.sub ?? '';
+
+    if (!this.customerId) {
+      console.error('No se pudo obtener el ID del usuario');
+      return;
+    }
+
     this.cargarDatosUsuario();
     this.cargarRutinas();
     this.cargarHistorialPeso();
@@ -61,22 +70,43 @@ export class DashboardClienteComponent implements OnInit {
   cargarRutinas() {
     this.workoutService.getRoutinesByUserId(this.customerId).subscribe(
       (rutinas) => {
-        this.planEntrenamiento = rutinas;
+        this.planEntrenamiento = rutinas.length
+          ? rutinas
+          : [{
+              id: 0, // Debe ser string según la interfaz
+              userId: this.customerId, // Usar el ID real del usuario
+              routineName: 'No hay rutinas disponibles',
+              day: 0,
+              exercises: [],
+            }];
       },
-      (error) => console.error('Error al obtener las rutinas del usuario', error)
+      (error) => {
+        console.error('Error al obtener las rutinas del usuario', error);
+        this.planEntrenamiento = [{
+          id: 0,
+          userId: this.customerId,
+          routineName: 'No hay rutinas disponibles',
+          day: 0,
+          exercises: [],
+        }];
+      }
     );
   }
 
   cargarHistorialPeso() {
     this.historicalProgressService.getProgressByUserId(this.customerId).subscribe(
       (historial) => {
-        this.historialPesos = historial.map((entry: any) => ({
-          date: entry.date,
-          weight: entry.weight,
-        }));
+        this.historialPesos = historial.length
+          ? historial.map((entry: any) => ({ date: entry.date, weight: entry.weight }))
+          : [{ date: 'Sin datos', weight: 0 }];
+
         this.createChart();
       },
-      (error) => console.error('Error al obtener historial de peso', error)
+      (error) => {
+        console.error('Error al obtener historial de peso', error);
+        this.historialPesos = [{ date: 'Sin datos', weight: 0 }];
+        this.createChart();
+      }
     );
   }
 
@@ -130,29 +160,29 @@ export class DashboardClienteComponent implements OnInit {
     this.objetivoFisico = this.objetivoTemporal;
     this.editandoObjetivo = false;
   }
-  
+
   cancelarEdicion() {
     this.editandoObjetivo = false;
   }
-  
+
   guardarPeso() {
     this.pesoActual = this.pesoTemporal;
     this.editandoPeso = false;
   }
-  
+
   cancelarEdicionPeso() {
     this.editandoPeso = false;
   }
-  
+
   editarDatos() {
     this.editandoObjetivo = true;
     this.objetivoTemporal = this.objetivoFisico;
   }
-  
+
   cambiarObjetivo() {
     this.editandoObjetivo = true;
   }
-  
+
   agregarPeso() {
     this.editandoPeso = true;
   }
