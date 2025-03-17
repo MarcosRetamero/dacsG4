@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { KeycloakService } from 'keycloak-angular';
 import { CustomerService } from 'src/app/core/services/customer.service';
 import { HistoricalProgressService } from 'src/app/core/services/historicalProgress.service';
-import { Routine, WorkoutService } from 'src/app/core/services/routine.service';
+import { Routine, Exercise, WorkoutService } from 'src/app/core/services/routine.service';
 
 @Component({
   selector: 'app-dashboard-cliente',
@@ -25,6 +25,7 @@ export class DashboardClienteComponent implements OnInit {
   grasaCorporal: number = 0;
 
   planEntrenamiento: Routine[] = [];
+  exercisesByRoutine: { [key: number]: Exercise[] } = {};
   historialPesos: { date: string; weight: number }[] = [];
 
   editandoObjetivo: boolean = false;
@@ -70,15 +71,20 @@ export class DashboardClienteComponent implements OnInit {
   cargarRutinas() {
     this.workoutService.getRoutinesByUserId(this.customerId).subscribe(
       (rutinas) => {
-        this.planEntrenamiento = rutinas.length
-          ? rutinas
-          : [{
-              id: 0, // Debe ser string según la interfaz
-              userId: this.customerId, // Usar el ID real del usuario
-              routineName: 'No hay rutinas disponibles',
-              day: 0,
-              exercises: [],
-            }];
+        if (rutinas.length) {
+          this.planEntrenamiento = rutinas;
+          // Cargar ejercicios para cada rutina
+          rutinas.forEach(rutina => {
+            this.cargarEjerciciosRutina(rutina.id);
+          });
+        } else {
+          this.planEntrenamiento = [{
+            id: 0,
+            userId: this.customerId,
+            routineName: 'No hay rutinas disponibles',
+            day: 0
+          }];
+        }
       },
       (error) => {
         console.error('Error al obtener las rutinas del usuario', error);
@@ -86,11 +92,26 @@ export class DashboardClienteComponent implements OnInit {
           id: 0,
           userId: this.customerId,
           routineName: 'No hay rutinas disponibles',
-          day: 0,
-          exercises: [],
+          day: 0
         }];
       }
     );
+  }
+
+  cargarEjerciciosRutina(routineId: number) {
+    this.workoutService.getExercisesByRoutineId(routineId).subscribe(
+      (exercises) => {
+        this.exercisesByRoutine[routineId] = exercises;
+      },
+      (error) => {
+        console.error('Error al cargar ejercicios de la rutina', error);
+        this.exercisesByRoutine[routineId] = [];
+      }
+    );
+  }
+
+  getExercisesForRoutine(routineId: number): Exercise[] {
+    return this.exercisesByRoutine[routineId] || [];
   }
 
   cargarHistorialPeso() {
