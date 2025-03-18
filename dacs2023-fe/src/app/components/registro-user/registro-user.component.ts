@@ -81,11 +81,15 @@ export class RegistroUserComponent implements OnInit {
           }
         } else {
           console.log('Usuario no encontrado, mostrando formulario vacío');
+          // Aquí puedes redirigir a la página de registro
+          this.router.navigate(['/registro-user']);
         }
       },
       (error) => {
         if (error.status === 404) {
           console.log('Usuario nuevo, mostrando formulario vacío');
+          // Redirigir al formulario de registro en caso de error 404
+          this.router.navigate(['/registro-user']);
         } else {
           console.error('Error al verificar usuario:', error);
           this.errorMessage = 'Error al verificar el estado del usuario.';
@@ -93,6 +97,7 @@ export class RegistroUserComponent implements OnInit {
       }
     );
   }
+
 
   onSubmit(): void {
     if (this.formulario.valid && this.userId) {

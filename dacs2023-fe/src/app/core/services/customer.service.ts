@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { catchError, map, Observable, of, throwError } from 'rxjs';
 import { AuthService } from './auth.service'; // Asegúrate de tener un servicio de autenticación
 
 // Define la interfaz de Customer
@@ -17,7 +17,7 @@ export interface Customer {
   providedIn: 'root'
 })
 export class CustomerService {
-  private apiUrl = 'http://localhost:9001/bff/backend/customers'; // Reemplaza con tu endpoint
+  private apiUrl = 'http://localhost:9001/bff/backend/customer'; // Reemplaza con tu endpoint
   private token: string | null = null;
 
   constructor(private http: HttpClient, private authService: AuthService) {
@@ -76,26 +76,24 @@ export class CustomerService {
 
 
     // Obtener un cliente por su ID y verificar campos vacíos
-    isNewUser(id: string): Observable<{ customer: Customer, isNewUser: boolean }> {
+    isNewUser(id: string): Observable<{ customer: Customer | null, isNewUser: boolean }> {
       const headers = new HttpHeaders({
         Authorization: `Bearer ${this.token}`
       });
 
-      return new Observable(observer => {
-        this.http.get<Customer>(`${this.apiUrl}/${id}`, { headers }).subscribe(
-          (customer) => {
-            // Verifica si los campos están vacíos
-            const isNewUser = !customer.name || !customer.age || !customer.stature || !customer.actualWeight;
-
-            // Devuelve el cliente y si es un nuevo usuario
-            observer.next({ customer, isNewUser });
-            observer.complete();
-          },
-          (error) => {
-            observer.error(error);
+      return this.http.get<Customer>(`${this.apiUrl}/${id}`, { headers }).pipe(
+        map((customer: Customer) => {
+          const isNewUser = !customer.name || !customer.age || !customer.stature || !customer.actualWeight;
+          return { customer, isNewUser };
+        }),
+        catchError((error) => {
+          // Si el error es 404, considera que es un usuario nuevo
+          if (error.status === 404) {
+            return of({ customer: null, isNewUser: true });
           }
-        );
-      });
+          // Otros errores
+          return throwError(() => error);
+        })
+      );
     }
-
 }
