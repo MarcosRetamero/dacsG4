@@ -17,7 +17,7 @@ const routes: Routes = [
   //  { path: '', canActivate: [AuthGuard]},
   //{ path: '**', redirectTo: '' },
 
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' }, // redirige la raíz al dashboard
+  { path: '', redirectTo: '/dashboard-cliente', pathMatch: 'full' }, // Cambiado de 'dashboard' a 'dashboard-cliente'
   { path: 'dashboard-cliente', component: DashboardClienteComponent },
   { path: 'registro-user', component: RegistroUserComponent },
   { path: 'plan-entrenamiento', component: PlanEntrenamientoComponent },

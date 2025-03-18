@@ -13,8 +13,8 @@ export class RegistroUserComponent implements OnInit {
   formulario: FormGroup;
   vieneDeDashboard: boolean = false;
   userId: string = '';
-  errorMessage: string = ''; // Mensaje de error
-  isLoading: boolean = false; // Estado de carga
+  errorMessage: string = '';
+  isLoading: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -47,37 +47,53 @@ export class RegistroUserComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.authService.getUserId().subscribe((id: string | null) => {
-      if (id) {
-        this.userId = id;
-        this.loadUserData(id);
-      } else {
-        this.errorMessage = 'No se pudo obtener el ID del usuario.';
+    this.authService.getUserId().subscribe(
+      (id: string | null) => {
+        if (id) {
+          this.userId = id;
+          this.loadUserData(id);
+        } else {
+          this.errorMessage = 'No se pudo obtener el ID del usuario.';
+          console.error('No se pudo obtener el ID del usuario');
+        }
+      },
+      (error) => {
+        console.error('Error al obtener el ID del usuario:', error);
+        this.errorMessage = 'Error al obtener la identificación del usuario.';
       }
-    });
+    );
   }
 
   loadUserData(id: string): void {
     this.customerService.isNewUser(id).subscribe(
       (response) => {
         const { customer, isNewUser } = response;
-        if (!isNewUser) {
+        if (!isNewUser && customer) {
+          // El usuario ya existe, cargamos los datos
           this.formulario.patchValue({
             nombre: customer.name,
             edad: customer.age,
             estatura: customer.stature,
             peso: customer.actualWeight,
           });
+        } else if (isNewUser) {
+          // Si es un usuario nuevo, continuamos con el registro
+          console.log('Usuario nuevo, continuando con el registro');
         }
       },
-      () => {
-        this.errorMessage = 'Error al cargar los datos del usuario.';
+      (error) => {
+        if (error.status === 404) {
+          console.log('Usuario nuevo, continuando con el registro');
+        } else {
+          this.errorMessage = 'Error al verificar el estado del usuario.';
+          console.error('Error al cargar los datos del usuario:', error);
+        }
       }
     );
   }
 
   onSubmit(): void {
-    if (this.formulario.valid) {
+    if (this.formulario.valid && this.userId) {
       this.isLoading = true;
       this.errorMessage = '';
 
@@ -93,43 +109,54 @@ export class RegistroUserComponent implements OnInit {
       this.customerService.getCustomerById(this.userId).subscribe(
         (existingCustomer) => {
           if (existingCustomer) {
-            // Usuario existe, actualizar
-            this.customerService.updateCustomer(this.userId, customerData).subscribe(
-              () => this.router.navigate(['/dashboard-cliente']),
-              (error: Error) => {
-                this.errorMessage = 'Error al actualizar los datos.';
-                console.error(error);
-                this.isLoading = false;
-              }
-            );
+            this.updateCustomer(customerData);
           } else {
             this.createCustomer(customerData);
           }
         },
         (error) => {
           if (error.status === 404) {
-            // Usuario no existe, crearlo
             this.createCustomer(customerData);
           } else {
             this.errorMessage = 'Error al verificar usuario.';
-            console.error(error);
+            console.error('Error al verificar usuario:', error);
             this.isLoading = false;
           }
         }
       );
+    } else {
+      this.errorMessage = 'Por favor, complete todos los campos requeridos.';
     }
   }
 
-  private createCustomer(customerData: Customer) {
-    this.customerService.addCustomer(customerData).subscribe(
-      () => this.router.navigate(['/dashboard-cliente']),
-      (error: Error) => {
-        this.errorMessage = 'Error al registrar usuario.';
-        console.error(error);
+  private updateCustomer(customerData: Customer) {
+    this.customerService.updateCustomer(this.userId, customerData).subscribe(
+      () => {
+        console.log('Usuario actualizado exitosamente');
+        this.router.navigate(['/dashboard-cliente']);
+      },
+      (error) => {
+        this.errorMessage = 'Error al actualizar los datos.';
+        console.error('Error al actualizar usuario:', error);
         this.isLoading = false;
       }
     );
   }
+
+  private createCustomer(customerData: Customer) {
+    this.customerService.addCustomer(customerData).subscribe(
+      () => {
+        console.log('Usuario creado exitosamente');
+        this.router.navigate(['/dashboard-cliente']);
+      },
+      (error) => {
+        this.errorMessage = 'Error al registrar usuario.';
+        console.error('Error al crear usuario:', error);
+        this.isLoading = false;
+      }
+    );
+  }
+}
 
 
 /* CODIGO MOCKEADO
