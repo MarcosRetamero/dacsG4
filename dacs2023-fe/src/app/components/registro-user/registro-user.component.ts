@@ -65,28 +65,30 @@ export class RegistroUserComponent implements OnInit {
   }
 
   loadUserData(id: string): void {
-    this.customerService.isNewUser(id).subscribe(
-      (response) => {
-        const { customer, isNewUser } = response;
-        if (!isNewUser && customer) {
-          // El usuario ya existe, cargamos los datos
+    this.customerService.getCustomerById(id).subscribe(
+      (customer) => {
+        if (customer) {
+          console.log('Usuario existente, cargando datos:', customer);
           this.formulario.patchValue({
             nombre: customer.name,
             edad: customer.age,
             estatura: customer.stature,
             peso: customer.actualWeight,
           });
-        } else if (isNewUser) {
-          // Si es un usuario nuevo, continuamos con el registro
-          console.log('Usuario nuevo, continuando con el registro');
+          // Si el usuario ya existe y no venimos del dashboard, redirigimos
+          if (!this.vieneDeDashboard) {
+            this.router.navigate(['/dashboard-cliente']);
+          }
+        } else {
+          console.log('Usuario no encontrado, mostrando formulario vacío');
         }
       },
       (error) => {
         if (error.status === 404) {
-          console.log('Usuario nuevo, continuando con el registro');
+          console.log('Usuario nuevo, mostrando formulario vacío');
         } else {
+          console.error('Error al verificar usuario:', error);
           this.errorMessage = 'Error al verificar el estado del usuario.';
-          console.error('Error al cargar los datos del usuario:', error);
         }
       }
     );
@@ -106,41 +108,16 @@ export class RegistroUserComponent implements OnInit {
         actualWeight: this.formulario.get('peso')?.value,
       };
 
-      this.customerService.getCustomerById(this.userId).subscribe(
-        (existingCustomer) => {
-          if (existingCustomer) {
-            this.updateCustomer(customerData);
-          } else {
-            this.createCustomer(customerData);
-          }
-        },
-        (error) => {
-          if (error.status === 404) {
-            this.createCustomer(customerData);
-          } else {
-            this.errorMessage = 'Error al verificar usuario.';
-            console.error('Error al verificar usuario:', error);
-            this.isLoading = false;
-          }
-        }
-      );
+      console.log('Intentando crear usuario con datos:', customerData);
+      this.createCustomer(customerData);
     } else {
+      console.log('Formulario inválido:', {
+        valid: this.formulario.valid,
+        userId: this.userId,
+        errors: this.formulario.errors
+      });
       this.errorMessage = 'Por favor, complete todos los campos requeridos.';
     }
-  }
-
-  private updateCustomer(customerData: Customer) {
-    this.customerService.updateCustomer(this.userId, customerData).subscribe(
-      () => {
-        console.log('Usuario actualizado exitosamente');
-        this.router.navigate(['/dashboard-cliente']);
-      },
-      (error) => {
-        this.errorMessage = 'Error al actualizar los datos.';
-        console.error('Error al actualizar usuario:', error);
-        this.isLoading = false;
-      }
-    );
   }
 
   private createCustomer(customerData: Customer) {

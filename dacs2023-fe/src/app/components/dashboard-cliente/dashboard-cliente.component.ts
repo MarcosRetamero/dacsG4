@@ -57,14 +57,28 @@ export class DashboardClienteComponent implements OnInit {
   cargarDatosUsuario() {
     this.customerService.getCustomerById(this.customerId).subscribe(
       (data) => {
-        this.nombre = data.name;
-        this.edad = data.age;
-        this.altura = data.stature;
-        this.pesoInicial = data.actualWeight;
-        this.pesoActual = data.actualWeight;
-        this.grasaCorporal = Math.trunc(this.pesoActual / Math.pow(this.altura / 100, 2));
+        if (data) {
+          this.nombre = data.name;
+          this.edad = data.age;
+          this.altura = data.stature;
+          this.pesoInicial = data.actualWeight;
+          this.pesoActual = data.actualWeight;
+          this.grasaCorporal = Math.trunc(this.pesoActual / Math.pow(this.altura / 100, 2));
+        } else {
+          console.log('No se encontraron datos del usuario, redirigiendo a registro');
+          this.router.navigate(['/registro-user']);
+        }
       },
-      (error) => console.error('Error al obtener los datos del usuario', error)
+      (error) => {
+        console.error('Error al obtener los datos del usuario', error);
+        if (error.status === 404) {
+          console.log('Usuario no encontrado en la BD, redirigiendo a registro');
+          this.router.navigate(['/registro-user']);
+        } else {
+          // Para otros errores, podríamos mostrar un mensaje al usuario
+          console.error('Error inesperado al cargar datos del usuario');
+        }
+      }
     );
   }
 
