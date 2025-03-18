@@ -78,8 +78,8 @@ export class RegistroUserComponent implements OnInit {
 
   onSubmit(): void {
     if (this.formulario.valid) {
-      this.isLoading = true; // Iniciar carga
-      this.errorMessage = ''; // Resetear mensaje de error
+      this.isLoading = true;
+      this.errorMessage = '';
 
       const customerData: Customer = {
         id: this.userId,
@@ -91,28 +91,25 @@ export class RegistroUserComponent implements OnInit {
       };
 
       this.customerService.getCustomerById(this.userId).subscribe(
-        () => {
-          // Usuario existe, actualizar
-          this.customerService.updateCustomer(this.userId, customerData).subscribe(
-            () => this.router.navigate(['/dashboard-cliente']),
-            (error: Error) => {
-              this.errorMessage = 'Error al actualizar los datos.';
-              console.error(error);
-              this.isLoading = false;
-            }
-          );
-        },
-        (error) => {
-          if (error.status === 404) {
-            // Usuario no existe, crearlo
-            this.customerService.addCustomer(customerData).subscribe(
+        (existingCustomer) => {
+          if (existingCustomer) {
+            // Usuario existe, actualizar
+            this.customerService.updateCustomer(this.userId, customerData).subscribe(
               () => this.router.navigate(['/dashboard-cliente']),
               (error: Error) => {
-                this.errorMessage = 'Error al registrar usuario.';
+                this.errorMessage = 'Error al actualizar los datos.';
                 console.error(error);
                 this.isLoading = false;
               }
             );
+          } else {
+            this.createCustomer(customerData);
+          }
+        },
+        (error) => {
+          if (error.status === 404) {
+            // Usuario no existe, crearlo
+            this.createCustomer(customerData);
           } else {
             this.errorMessage = 'Error al verificar usuario.';
             console.error(error);
@@ -122,7 +119,17 @@ export class RegistroUserComponent implements OnInit {
       );
     }
   }
-}
+
+  private createCustomer(customerData: Customer) {
+    this.customerService.addCustomer(customerData).subscribe(
+      () => this.router.navigate(['/dashboard-cliente']),
+      (error: Error) => {
+        this.errorMessage = 'Error al registrar usuario.';
+        console.error(error);
+        this.isLoading = false;
+      }
+    );
+  }
 
 
 /* CODIGO MOCKEADO
