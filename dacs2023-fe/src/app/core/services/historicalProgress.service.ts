@@ -3,48 +3,51 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service'; // Asegúrate de tener un servicio de autenticación
 
-// Define la interfaz de HistoricalProgress
+// Update the interface to match the API response
 export interface HistoricalProgress {
   id: number;
-  userId: string;  // ID de usuario como string (Keycloak)
-  date: string;  // Fecha en formato string (YYYY-MM-DD)
+  date: string;  // Format: YYYY-MM-DD
+  progressDescription: string | null;
   weight: number;
+  bodyFatPercentage: number | null;
+  customerId: string;  // Keycloak user ID
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class HistoricalProgressService {
-  private apiUrl = 'http://localhost:9001/bff/backend/historical-progress'; // Reemplaza con tu endpoint
+  private apiUrl = 'http://localhost:9001/bff/backend/historical-progress';
   private token: string | null = null;
 
   constructor(private http: HttpClient, private authService: AuthService) {
-    // Obtiene el token de autenticación
     this.authService.getToken().subscribe((token: string | null) => {
       this.token = token;
     });
   }
 
-  // Obtener el progreso histórico de un usuario
-  getProgressByUserId(userId: string): Observable<HistoricalProgress[]> {
+  // Update the endpoint to match the API
+  getProgressByUserId(customerId: string): Observable<HistoricalProgress[]> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${this.token}`
     });
 
-    return this.http.get<HistoricalProgress[]>(`${this.apiUrl}/user/${userId}`, { headers });
+    return this.http.get<HistoricalProgress[]>(`${this.apiUrl}/customer/${customerId}`, { headers });
   }
 
-  // Crear un nuevo registro de progreso histórico
-  createProgress(progress: HistoricalProgress): Observable<HistoricalProgress> {
+  createProgress(customerId: string, data: Pick<HistoricalProgress, 'date' | 'weight'>): Observable<HistoricalProgress[]> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${this.token}`,
       'Content-Type': 'application/json'
     });
 
-    return this.http.post<HistoricalProgress>(this.apiUrl, progress, { headers });
+    return this.http.post<HistoricalProgress[]>(
+      `${this.apiUrl}/customer/${customerId}`,
+      data,
+      { headers }
+    );
   }
 
-  // Eliminar un registro de progreso histórico por su ID
   deleteProgress(id: number): Observable<void> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${this.token}`

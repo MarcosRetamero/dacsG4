@@ -51,25 +51,24 @@ export class CreateRoutineComponent implements OnInit {
   }
 
   private loadExercises(): void {
-    this.workoutService.getAvailableExercises().subscribe(
-      (exerciseImages: ExerciseImage[]) => {
-        // Transform ExerciseImage[] to Exercise[]
-        this.availableExercises = exerciseImages.map((exerciseData: ExerciseImage) => {
-          return {
-            id: exerciseData.exercise.id,
-            name: exerciseData.exercise.name,
-            description: exerciseData.exercise.description,
-            // Set default values for properties not provided by the API
-            sets: 3, // Default value
-            reps: 10, // Default value
-            image: exerciseData.image.image,
-            routineId: 0 // Default value
-          } as Exercise;
-        });
+    this.workoutService.getAvailableExercises().subscribe({
+      next: (exerciseImages: ExerciseImage[]) => {
+        this.availableExercises = exerciseImages.map((exerciseData: ExerciseImage) => ({
+          id: exerciseData.exercise.id,
+          name: exerciseData.exercise.name,
+          description: exerciseData.exercise.description,
+          sets: 3,
+          reps: 10,
+          image: exerciseData.image.image,
+          routineId: 0
+        }));
       },
-      (error) => console.error('Error al obtener los ejercicios:', error)
-    );
-  }
+      error: (error) => {
+        console.error('Error al obtener los ejercicios:', error);
+        this.availableExercises = [];
+      }
+    });
+}
 
   private loadHistoryState(): void {
     interface HistoryExerciseData {

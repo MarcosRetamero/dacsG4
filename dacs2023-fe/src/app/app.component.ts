@@ -20,39 +20,43 @@ export class AppComponent implements OnInit {
 
   public async ngOnInit() {
     try {
+      // Wait for Keycloak to be initialized
       this.isLogueado = await this.keycloak.isLoggedIn();
 
       if (this.isLogueado) {
-        this.userId =
-          this.keycloak.getKeycloakInstance().tokenParsed?.sub ?? null;
-        console.log('User ID:', this.userId);
+        // Get user ID from Keycloak
+        const userInfo = await this.keycloak.loadUserProfile();
+        this.userId = userInfo.id || null;
 
         if (!this.userId) {
           console.error('No se pudo obtener el User ID de Keycloak.');
           return;
         }
 
-        this.customerService.getCustomerById(this.userId).subscribe({
-          next: (customer) => {
-            console.log('Usuario encontrado:', customer);
+        // Check if user exists in our database
+        this.customerService.isNewUser(this.userId).subscribe({
+          next: (response) => {
+            const { isNewUser } = response;
 
-            if (this.router.url !== '/dashboard-cliente') {
-              this.router.navigate(['/dashboard-cliente']); // Redirigir si no está en la ruta ya
-            }
-          },
-          error: (err) => {
-            if (err.status === 404) {
-              console.warn(
-                'Usuario no encontrado en la BD, redirigiendo a registro-user'
-              );
-
+            if (isNewUser) {
+              console.log('Usuario nuevo, redirigiendo a registro');
               if (this.router.url !== '/registro-user') {
                 this.router.navigate(['/registro-user']);
               }
             } else {
-              console.error('Error al verificar usuario:', err);
+              console.log('Usuario existente, redirigiendo a dashboard');
+              if (this.router.url !== '/dashboard-cliente') {
+                this.router.navigate(['/dashboard-cliente']);
+              }
             }
           },
+          error: (err) => {
+            console.error('Error al verificar usuario:', err);
+            // En caso de error, asumimos que es un usuario nuevo
+            if (this.router.url !== '/registro-user') {
+              this.router.navigate(['/registro-user']);
+            }
+          }
         });
       } else {
         await this.keycloak.login({ redirectUri: window.location.origin });

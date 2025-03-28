@@ -129,57 +129,95 @@ export class DashboardClienteComponent implements OnInit {
   }
 
   cargarHistorialPeso() {
-    this.historicalProgressService.getProgressByUserId(this.customerId).subscribe(
-      (historial) => {
-        this.historialPesos = historial.length
-          ? historial.map((entry: any) => ({ date: entry.date, weight: entry.weight }))
-          : [{ date: 'Sin datos', weight: 0 }];
-
+    this.historicalProgressService.getProgressByUserId(this.customerId).subscribe({
+      next: (historial) => {
+        if (historial && historial.length > 0) {
+          this.historialPesos = historial.map(entry => ({
+            date: entry.date,
+            weight: entry.weight
+          }));
+          this.pesoActual = historial[historial.length - 1].weight; // Update current weight
+        } else {
+          this.historialPesos = [{ date: 'Sin datos', weight: 0 }];
+        }
         this.createChart();
       },
-      (error) => {
-        console.error('Error al obtener historial de peso', error);
+      error: (error) => {
+        console.error('Error al obtener historial de peso:', error);
         this.historialPesos = [{ date: 'Sin datos', weight: 0 }];
         this.createChart();
       }
-    );
-  }
+    });
+}
 
-  ngAfterViewInit() {
-    this.createChart();
-  }
+// Add method to handle weight updates
+guardarPeso() {
+    if (!this.pesoTemporal || this.pesoTemporal <= 0) {
+      console.error('Peso inválido');
+      return;
+    }
 
-  private createChart() {
-    if (!this.historialPesos.length) return;
+    const today = new Date().toISOString().split('T')[0];
+    const newProgress = {
+      date: today,
+      weight: this.pesoTemporal
+    };
+
+    this.historicalProgressService.createProgress(this.customerId, newProgress).subscribe({
+      next: (response) => {
+        console.log('Peso actualizado correctamente');
+        this.editandoPeso = false;
+        this.pesoActual = this.pesoTemporal;
+        this.cargarHistorialPeso(); // Reload chart data
+      },
+      error: (error) => {
+        console.error('Error al actualizar el peso:', error);
+        this.editandoPeso = false;
+      }
+    });
+}
+
+// Update chart creation method
+private createChart() {
+    if (!this.chartCanvas || !this.historialPesos.length) return;
+
+    if (this.chart) {
+      this.chart.destroy(); // Destroy existing chart before creating a new one
+    }
 
     const ctx = this.chartCanvas.nativeElement;
-    const labels = this.historialPesos.map((entry) => entry.date);
-    const data = this.historialPesos.map((entry) => entry.weight);
+    const labels = this.historialPesos.map(entry =>
+      entry.date === 'Sin datos' ? entry.date : new Date(entry.date).toLocaleDateString()
+    );
+    const data = this.historialPesos.map(entry => entry.weight);
 
     this.chart = new Chart(ctx, {
       type: 'line',
       data: {
         labels,
-        datasets: [
-          {
-            label: 'Peso (kg)',
-            data,
-            borderColor: '#710D07',
-            backgroundColor: 'rgba(113, 13, 7, 0.2)',
-            borderWidth: 2,
-            fill: true,
-          },
-        ],
+        datasets: [{
+          label: 'Peso (kg)',
+          data,
+          borderColor: '#710D07',
+          backgroundColor: 'rgba(113, 13, 7, 0.2)',
+          borderWidth: 2,
+          fill: true,
+        }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          y: { beginAtZero: false },
-        },
-      },
+          y: {
+            beginAtZero: false,
+            ticks: {
+              callback: (value) => `${value} kg`
+            }
+          }
+        }
+      }
     });
-  }
+}
 
   editarRutina(rutina: Routine) {
     this.router.navigate(['/plan-entrenamiento'], {
@@ -200,10 +238,6 @@ export class DashboardClienteComponent implements OnInit {
     this.editandoObjetivo = false;
   }
 
-  guardarPeso() {
-    this.pesoActual = this.pesoTemporal;
-    this.editandoPeso = false;
-  }
 
   cancelarEdicionPeso() {
     this.editandoPeso = false;

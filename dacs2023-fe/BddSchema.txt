@@ -1,0 +1,41 @@
+-- Tabla Customer
+CREATE TABLE Customer (
+    id SERIAL NOT NULL PRIMARY KEY,
+    name VARCHAR(255),
+    age INTEGER,
+    goal VARCHAR,
+    stature DECIMAL(5,2),
+    actualWeight DECIMAL(5,2)
+);
+
+-- Tabla Routine
+CREATE TABLE Routine (
+    id SERIAL NOT NULL PRIMARY KEY,
+    userId INTEGER NOT NULL REFERENCES Customer(id) ON DELETE CASCADE,
+    routineName VARCHAR(255),
+    day INTEGER CHECK (day >= 1 AND day <= 7)
+);
+
+-- Tabla Exercise
+CREATE TABLE Exercise (
+    id SERIAL NOT NULL PRIMARY KEY,
+    routineId INTEGER NOT NULL REFERENCES Routine(id) ON DELETE CASCADE,
+    name VARCHAR(255),
+    image VARCHAR(255),
+    description TEXT,
+    reps INTEGER,
+    sets INTEGER
+);
+
+-- Tabla HistoricalProgress
+CREATE TABLE HistoricalProgress (
+    id SERIAL NOT NULL PRIMARY KEY,
+    userId INTEGER NOT NULL REFERENCES Customer(id) ON DELETE CASCADE,
+    date DATE,
+    weight DECIMAL(5,2)
+);
+
+-- Índices en claves foráneas
+CREATE INDEX idx_routine_userId ON Routine(userId);
+CREATE INDEX idx_exercise_routineId ON Exercise(routineId);
+CREATE INDEX idx_historicalprogress_userId ON HistoricalProgress(userId);

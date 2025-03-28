@@ -3,16 +3,18 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 
+// Update the Exercise interface
 export interface Exercise {
   id: number;
-  routineId: number;
   name: string;
-  image: string;
   description: string;
+  image: string;
   reps: number;
   sets: number;
+  routineId: number;
 }
 
+// Routine interface is correct, no changes needed
 export interface Routine {
   id: number;
   userId: string;
@@ -39,7 +41,7 @@ export interface ExerciseImage {
 })
 export class WorkoutService {
   private routineApiUrl = 'http://localhost:9001/bff/backend/routines';
-  private exerciseApiUrl = 'http://localhost:9001/bff/backend/exercises';
+  private exerciseApiUrl = 'http://localhost:9001/bff/backend/exercise'; // Fixed URL
   private exerciseImagesApiUrl =
     'http://localhost:9001/bff/conector/exercises/with-images';
   private token: string | null = null;
@@ -64,11 +66,13 @@ export class WorkoutService {
 
   /** RUTINAS */
   getRoutinesByUserId(userId: string): Observable<Routine[]> {
-    // Suponiendo que 'userId' es necesario para recuperar las rutinas asociadas al usuario,
-    // pero si solo se necesita 'routineId' como el endpoint backend, ajustamos la llamada.
-    return this.http.get<Routine[]>(`${this.routineApiUrl}`, {
-      headers: this.getHeaders(),
-    });
+    return this.http.get<Routine[]>(
+      `${this.routineApiUrl}/customer/${userId}`,
+      {
+        // Fixed endpoint
+        headers: this.getHeaders(),
+      }
+    );
   }
 
   getRoutineById(id: number): Observable<Routine> {
