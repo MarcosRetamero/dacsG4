@@ -12,7 +12,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 export class RegistroUserComponent implements OnInit {
   formulario: FormGroup;
   vieneDeDashboard: boolean = false;
-  userId: string = '';
+  userId: string | null = null;
   errorMessage: string = '';
   isLoading: boolean = false;
 
@@ -47,15 +47,16 @@ export class RegistroUserComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Get ID directly from token for consistency
-    this.userId = this.authService.getUserIdSync();
-
-    if (this.userId) {
-      console.log('ID para registro:', this.userId);
-      this.loadUserData(this.userId);
-    } else {
-      console.error('No se pudo obtener el ID del usuario');
-    }
+    this.authService.getUserId().subscribe((id) => {
+      if (id) {
+        this.userId = id;
+        console.log('ID para registro (desde token actualizado):', this.userId);
+        this.loadUserData(this.userId);
+      } else {
+        console.error('No se pudo obtener el ID del usuario');
+        this.errorMessage = 'No se pudo verificar tu sesión. Intenta volver a iniciar sesión.';
+      }
+    });
   }
 
   loadUserData(id: string): void {
@@ -94,13 +95,13 @@ export class RegistroUserComponent implements OnInit {
 
 
   onSubmit(): void {
-    if (this.formulario.valid && this.userId) {
+    if (this.formulario.valid && this.userId !== null){
       this.isLoading = true;
       this.errorMessage = '';
 
       this.authService.getUserEmail().subscribe(email => {
         const customerData: Customer = {
-          id: this.userId,
+          id: this.userId!,
           name: this.formulario.get('nombre')?.value,
           age: this.formulario.get('edad')?.value,
           stature: this.formulario.get('estatura')?.value,

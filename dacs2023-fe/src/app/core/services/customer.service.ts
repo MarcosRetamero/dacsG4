@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { catchError, map, Observable, of, throwError } from 'rxjs';
+import { catchError, map, Observable, of, throwError, switchMap } from 'rxjs';
 import { AuthService } from './auth.service';
 
 // Define la interfaz de Customer según la respuesta del backend
@@ -20,80 +20,84 @@ export interface Customer {
 })
 export class CustomerService {
   private apiUrl = 'http://localhost:9001/bff/backend/customer'; // Endpoint base
-  private token: string | null = null;
 
-  constructor(private http: HttpClient, private authService: AuthService) {
-    // Obtiene el token de autenticación
-    this.authService.getToken().subscribe((token: string | null) => {
-      this.token = token;
-    });
-  }
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // Obtener todos los clientes
   getCustomers(): Observable<Customer[]> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.token}`
-    });
-
-    return this.http.get<Customer[]>(`${this.apiUrl}`, { headers });
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
+        return this.http.get<Customer[]>(`${this.apiUrl}`, { headers });
+      })
+    );
   }
 
-  // Obtener un cliente por su ID
   getCustomerById(id: string): Observable<Customer> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.token}`
-    });
-
-    return this.http.get<Customer>(`${this.apiUrl}/${id}`, { headers });
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
+        return this.http.get<Customer>(`${this.apiUrl}/${id}`, { headers });
+      })
+    );
   }
 
-  // Agregar un nuevo cliente
   addCustomer(customer: Customer): Observable<Customer> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.token}`,
-      'Content-Type': 'application/json'
-    });
-
-    return this.http.post<Customer>(this.apiUrl, customer, { headers });
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        });
+        return this.http.post<Customer>(this.apiUrl, customer, { headers });
+      })
+    );
   }
 
-  // Actualizar un cliente
   updateCustomer(id: string, customer: Customer): Observable<Customer> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.token}`,
-      'Content-Type': 'application/json'
-    });
-
-    return this.http.put<Customer>(`${this.apiUrl}/${id}`, customer, { headers });
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        });
+        return this.http.put<Customer>(`${this.apiUrl}/${id}`, customer, { headers });
+      })
+    );
   }
 
-  // Eliminar un cliente
   deleteCustomer(id: string): Observable<void> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.token}`
-    });
-
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
+        return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
+      })
+    );
   }
 
-  // Obtener un cliente por su ID y verificar campos vacíos
   isNewUser(id: string): Observable<{ customer: Customer | null, isNewUser: boolean }> {
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${this.token}`
-    });
-
-    return this.http.get<Customer>(`${this.apiUrl}/${id}`, { headers }).pipe(
-      map((customer: Customer) => {
-        const isNewUser = !customer.name || !customer.age || !customer.stature || !customer.actualWeight;
-        return { customer, isNewUser };
-      }),
-      catchError((error) => {
-        // Si el error es 404, considera que es un usuario nuevo
-        if (error.status === 404) {
-          return of({ customer: null, isNewUser: true });
-        }
-        // Otros errores
-        return throwError(() => error);
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
+        return this.http.get<Customer>(`${this.apiUrl}/${id}`, { headers }).pipe(
+          map((customer: Customer) => {
+            const isNewUser = !customer.name || !customer.age || !customer.stature || !customer.actualWeight;
+            return { customer, isNewUser };
+          }),
+          catchError((error) => {
+            if (error.status === 404) {
+              return of({ customer: null, isNewUser: true });
+            }
+            return throwError(() => error);
+          })
+        );
       })
     );
   }

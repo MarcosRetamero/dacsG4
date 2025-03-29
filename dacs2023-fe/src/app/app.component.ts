@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { KeycloakService } from 'keycloak-angular';
+import { AuthService } from './core/services/auth.service';
 import { CustomerService } from './core/services/customer.service';
 
 @Component({
@@ -13,31 +13,33 @@ export class AppComponent implements OnInit {
   public userId: string | null = null;
 
   constructor(
-    private readonly keycloak: KeycloakService,
-    private customerService: CustomerService,
-    private router: Router
+    private readonly authService: AuthService,
+    private readonly customerService: CustomerService,
+    private readonly router: Router
   ) {}
 
-  public async ngOnInit() {
-    try {
-      // Wait for Keycloak to be initialized
-      this.isLogueado = await this.keycloak.isLoggedIn();
+  public ngOnInit(): void {
+    this.authService.isAuthenticated().subscribe(async (isLoggedIn) => {
+      this.isLogueado = isLoggedIn;
 
-      if (this.isLogueado) {
-        // Get user ID from Keycloak
-        const userInfo = await this.keycloak.loadUserProfile();
-        this.userId = userInfo.id || null;
+      if (!isLoggedIn) {
+        // Redirige al login si no hay sesión activa
+        await this.authService.login();
+        return;
+      }
+
+      // Obtiene el ID del usuario desde el token actual
+      this.authService.getUserId().subscribe((id) => {
+        this.userId = id;
 
         if (!this.userId) {
-          console.error('No se pudo obtener el User ID de Keycloak.');
+          console.error('No se pudo obtener el User ID desde el token.');
           return;
         }
 
-        // Check if user exists in our database
+        // Verifica si el usuario existe en la base de datos
         this.customerService.isNewUser(this.userId).subscribe({
-          next: (response) => {
-            const { isNewUser } = response;
-
+          next: ({ isNewUser }) => {
             if (isNewUser) {
               console.log('Usuario nuevo, redirigiendo a registro');
               if (this.router.url !== '/registro-user') {
@@ -52,25 +54,21 @@ export class AppComponent implements OnInit {
           },
           error: (err) => {
             console.error('Error al verificar usuario:', err);
-            // En caso de error, asumimos que es un usuario nuevo
+            // En caso de error asumimos que es nuevo
             if (this.router.url !== '/registro-user') {
               this.router.navigate(['/registro-user']);
             }
           }
         });
-      } else {
-        await this.keycloak.login({ redirectUri: window.location.origin });
-      }
-    } catch (error) {
-      console.error('Error en ngOnInit:', error);
-    }
+      });
+    });
   }
 
   public iniciarSesion() {
-    this.keycloak.login();
+    this.authService.login();
   }
 
   public cerrarSesion() {
-    this.keycloak.logout();
+    this.authService.logout();
   }
 }

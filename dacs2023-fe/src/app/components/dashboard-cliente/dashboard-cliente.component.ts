@@ -16,7 +16,9 @@ export class DashboardClienteComponent implements OnInit {
   @ViewChild('pesoChart') chartCanvas!: ElementRef<HTMLCanvasElement>;
   private chart!: Chart;
 
-  customerId: string = '';
+  customerId: string | null = null;
+  email: string = '';
+
   nombre: string = '';
   edad: number = 0;
   objetivoFisico: string = '';
@@ -40,35 +42,35 @@ export class DashboardClienteComponent implements OnInit {
     private customerService: CustomerService,
     private historicalProgressService: HistoricalProgressService,
     private workoutService: WorkoutService,
-    private authService: AuthService  // Add this
+    private authService: AuthService
   ) {}
 
-  async ngOnInit() {
-    // Get ID directly from token for consistency
-    this.customerId = this.authService.getUserIdSync();
+  ngOnInit() {
+    this.authService.getUserId().subscribe((id) => {
+      if (!id) {
+        console.error('No se pudo obtener el ID del usuario');
+        this.router.navigate(['/login']);
+        return;
+      }
 
-    if (!this.customerId) {
-      console.error('No se pudo obtener el ID del usuario');
-      return;
-    }
+      this.customerId = id;
+      console.log('ID obtenido desde token:', id);
 
-    console.log('ID obtenido del token:', this.customerId);
+      this.authService.getUserEmail().subscribe(email => {
+        this.email = email || '';
+      });
 
-    // For debugging, also log the ID from getUserId method
-    this.authService.getUserId().subscribe(id => {
-      console.log('ID obtenido de getUserId:', id);
+      this.cargarDatosUsuario();
+      this.cargarRutinas();
+      this.cargarHistorialPeso();
     });
-
-    this.cargarDatosUsuario();
-    this.cargarRutinas();
-    this.cargarHistorialPeso();
   }
 
   cargarDatosUsuario() {
-    console.log('Intentando cargar datos para el ID:', this.customerId);
+    if (!this.customerId) return;
+
     this.customerService.getCustomerById(this.customerId).subscribe({
       next: (data) => {
-        console.log('Datos del usuario recibidos:', data);
         if (data) {
           this.nombre = data.name;
           this.edad = data.age;
@@ -76,38 +78,35 @@ export class DashboardClienteComponent implements OnInit {
           this.pesoInicial = data.actualWeight;
           this.pesoActual = data.actualWeight;
           this.objetivoFisico = data.goal ?? '';
-          // Calculate IMC if not provided by the backend
           this.grasaCorporal = data.imc ?? Math.trunc(this.pesoActual / Math.pow(this.altura / 100, 2));
         } else {
-          console.log('No se encontraron datos para el usuario, redirigiendo a registro');
           this.router.navigate(['/registro-user']);
         }
       },
       error: (error) => {
-        console.error('Error al obtener los datos del usuario', error);
         if (error.status === 404) {
-          console.log('Usuario no encontrado en la BD, redirigiendo a registro');
           this.router.navigate(['/registro-user']);
         } else {
-          console.error('Error inesperado al cargar datos del usuario');
+          console.error('Error inesperado al cargar datos del usuario', error);
         }
       }
     });
   }
 
   cargarRutinas() {
+    if (!this.customerId) return;
+
     this.workoutService.getRoutinesByUserId(this.customerId).subscribe(
       (rutinas) => {
         if (rutinas.length) {
           this.planEntrenamiento = rutinas;
-          // Cargar ejercicios para cada rutina
           rutinas.forEach(rutina => {
             this.cargarEjerciciosRutina(rutina.id);
           });
         } else {
           this.planEntrenamiento = [{
             id: 0,
-            userId: this.customerId,
+            userId: this.customerId!,
             routineName: 'No hay rutinas disponibles',
             day: 0
           }];
@@ -117,7 +116,7 @@ export class DashboardClienteComponent implements OnInit {
         console.error('Error al obtener las rutinas del usuario', error);
         this.planEntrenamiento = [{
           id: 0,
-          userId: this.customerId,
+          userId: this.customerId!,
           routineName: 'No hay rutinas disponibles',
           day: 0
         }];
@@ -137,11 +136,9 @@ export class DashboardClienteComponent implements OnInit {
     );
   }
 
-  getExercisesForRoutine(routineId: number): Exercise[] {
-    return this.exercisesByRoutine[routineId] || [];
-  }
-
   cargarHistorialPeso() {
+    if (!this.customerId) return;
+
     this.historicalProgressService.getProgressByUserId(this.customerId).subscribe({
       next: (historial) => {
         if (historial && historial.length > 0) {
@@ -149,7 +146,7 @@ export class DashboardClienteComponent implements OnInit {
             date: entry.date,
             weight: entry.weight
           }));
-          this.pesoActual = historial[historial.length - 1].weight; // Update current weight
+          this.pesoActual = historial[historial.length - 1].weight;
         } else {
           this.historialPesos = [{ date: 'Sin datos', weight: 0 }];
         }
@@ -161,14 +158,10 @@ export class DashboardClienteComponent implements OnInit {
         this.createChart();
       }
     });
-}
+  }
 
-// Add method to handle weight updates
-guardarPeso() {
-    if (!this.pesoTemporal || this.pesoTemporal <= 0) {
-      console.error('Peso inválido');
-      return;
-    }
+  guardarPeso() {
+    if (!this.pesoTemporal || this.pesoTemporal <= 0 || !this.customerId) return;
 
     const today = new Date().toISOString().split('T')[0];
     const newProgress = {
@@ -179,15 +172,11 @@ guardarPeso() {
     };
 
     this.historicalProgressService.createProgress(this.customerId, newProgress).subscribe({
-      next: (response) => {
-        console.log('Peso actualizado correctamente');
+      next: () => {
         this.editandoPeso = false;
         this.pesoActual = this.pesoTemporal;
-
-        // Also update the customer data with the new weight
         this.updateCustomerWeight(this.pesoTemporal);
-
-        this.cargarHistorialPeso(); // Reload chart data
+        this.cargarHistorialPeso();
       },
       error: (error) => {
         console.error('Error al actualizar el peso:', error);
@@ -196,8 +185,9 @@ guardarPeso() {
     });
   }
 
-  // New method to update customer weight
   private updateCustomerWeight(newWeight: number) {
+    if (!this.customerId) return;
+
     const customerData: Customer = {
       id: this.customerId,
       name: this.nombre,
@@ -205,7 +195,7 @@ guardarPeso() {
       stature: this.altura,
       actualWeight: newWeight,
       goal: this.objetivoFisico,
-      email: this.authService.getUserIdSync() ? this.keycloakService.getKeycloakInstance().tokenParsed?.['email'] || '' : '',
+      email: this.email,
       imc: Math.trunc(newWeight / Math.pow(this.altura / 100, 2))
     };
 
@@ -219,12 +209,37 @@ guardarPeso() {
     });
   }
 
-// Update chart creation method
-private createChart() {
+  guardarObjetivo() {
+    if (!this.customerId) return;
+
+    const customerData: Customer = {
+      id: this.customerId,
+      name: this.nombre,
+      age: this.edad,
+      stature: this.altura,
+      actualWeight: this.pesoActual,
+      goal: this.objetivoTemporal,
+      email: this.email,
+      imc: this.grasaCorporal
+    };
+
+    this.customerService.updateCustomer(this.customerId, customerData).subscribe({
+      next: () => {
+        this.objetivoFisico = this.objetivoTemporal;
+        this.editandoObjetivo = false;
+      },
+      error: (error) => {
+        console.error('Error al actualizar el objetivo:', error);
+        this.editandoObjetivo = false;
+      }
+    });
+  }
+
+  private createChart() {
     if (!this.chartCanvas || !this.historialPesos.length) return;
 
     if (this.chart) {
-      this.chart.destroy(); // Destroy existing chart before creating a new one
+      this.chart.destroy();
     }
 
     const ctx = this.chartCanvas.nativeElement;
@@ -259,8 +274,9 @@ private createChart() {
         }
       }
     });
-}
+  }
 
+  // UI handlers
   editarRutina(rutina: Routine) {
     this.router.navigate(['/plan-entrenamiento'], {
       state: { datosRutina: rutina },
@@ -271,37 +287,9 @@ private createChart() {
     this.router.navigate(['/agregar-ejercicios']);
   }
 
-  guardarObjetivo() {
-    // Use keycloakService directly to get email
-    const email = this.keycloakService.getKeycloakInstance().tokenParsed?.['email'] || '';
-
-    const customerData: Customer = {
-      id: this.customerId,
-      name: this.nombre,
-      age: this.edad,
-      stature: this.altura,
-      actualWeight: this.pesoActual,
-      goal: this.objetivoTemporal,
-      email: email,
-      imc: this.grasaCorporal
-    };
-
-    this.customerService.updateCustomer(this.customerId, customerData).subscribe({
-      next: () => {
-        this.objetivoFisico = this.objetivoTemporal;
-        this.editandoObjetivo = false;
-      },
-      error: (error) => {
-        console.error('Error al actualizar el objetivo:', error);
-        this.editandoObjetivo = false;
-      }
-    });
-  }
-
   cancelarEdicion() {
     this.editandoObjetivo = false;
   }
-
 
   cancelarEdicionPeso() {
     this.editandoPeso = false;

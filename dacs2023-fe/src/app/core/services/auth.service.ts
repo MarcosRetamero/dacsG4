@@ -18,28 +18,23 @@ export class AuthService {
     return from(this.keycloakService.isLoggedIn());
   }
 
-  // Obtener el token de acceso de Keycloak
   getToken(): Observable<string | null> {
-    const token = this.getStoredToken();
-    if (token) {
-      return of(token);  // Devuelve el token almacenado en localStorage
-    } else {
-      return new Observable(observer => {
-        const token = this.keycloakService.getKeycloakInstance().token;
-        if (token) {
-          this.setStoredToken(token); // Almacena el token en localStorage
-          observer.next(token);
-          observer.complete();
-        } else {
-          observer.error('Token is undefined');
-        }
-      });
-    }
+    return new Observable(observer => {
+      const token = this.keycloakService.getKeycloakInstance().token;
+      if (token) {
+        this.setStoredToken(token); // Actualiza el token en localStorage (opcional)
+        observer.next(token);
+        observer.complete();
+      } else {
+        observer.error('Token is undefined');
+      }
+    });
   }
+
 
   // Método para decodificar el token y obtener el payload
   private getTokenPayload(): any | null {
-    const token = this.getStoredToken();
+    const token = this.keycloakService.getKeycloakInstance().token;
     if (token) {
       try {
         return JSON.parse(atob(token.split('.')[1]));
@@ -50,6 +45,7 @@ export class AuthService {
     }
     return null;
   }
+
 
   // Obtener ID del usuario (método observable)
   getUserId(): Observable<string | null> {
