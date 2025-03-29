@@ -45,7 +45,7 @@ export class DashboardClienteComponent implements OnInit {
 
   async ngOnInit() {
     // Get ID directly from token for consistency
-    this.customerId = this.authService.getUserIdFromToken();
+    this.customerId = this.authService.getUserIdSync();
 
     if (!this.customerId) {
       console.error('No se pudo obtener el ID del usuario');
@@ -205,7 +205,7 @@ guardarPeso() {
       stature: this.altura,
       actualWeight: newWeight,
       goal: this.objetivoFisico,
-      email: this.keycloakService.getKeycloakInstance().tokenParsed?.['email'] || '',
+      email: this.authService.getUserIdSync() ? this.keycloakService.getKeycloakInstance().tokenParsed?.['email'] || '' : '',
       imc: Math.trunc(newWeight / Math.pow(this.altura / 100, 2))
     };
 
@@ -272,6 +272,9 @@ private createChart() {
   }
 
   guardarObjetivo() {
+    // Use keycloakService directly to get email
+    const email = this.keycloakService.getKeycloakInstance().tokenParsed?.['email'] || '';
+
     const customerData: Customer = {
       id: this.customerId,
       name: this.nombre,
@@ -279,7 +282,7 @@ private createChart() {
       stature: this.altura,
       actualWeight: this.pesoActual,
       goal: this.objetivoTemporal,
-      email: this.keycloakService.getKeycloakInstance().tokenParsed?.['email'] || '',
+      email: email,
       imc: this.grasaCorporal
     };
 
