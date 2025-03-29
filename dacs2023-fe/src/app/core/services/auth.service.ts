@@ -36,13 +36,46 @@ export class AuthService {
       });
     }
   }
+
+  // Método para decodificar el token y obtener el payload
+  private getTokenPayload(): any | null {
+    const token = this.getStoredToken();
+    if (token) {
+      try {
+        return JSON.parse(atob(token.split('.')[1]));
+      } catch (e) {
+        console.error('Error parsing token:', e);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  // Obtener ID del usuario (método observable)
   getUserId(): Observable<string | null> {
     return new Observable(observer => {
-      const token = this.getStoredToken();
-      if (token) {
-        const payload = JSON.parse(atob(token.split('.')[1])); // Decodificar el token JWT
-        const userId = payload.sub; // Keycloak usa 'sub' como identificador único
-        observer.next(userId);
+      const payload = this.getTokenPayload();
+      if (payload) {
+        observer.next(payload.sub); // Keycloak usa 'sub' como identificador único
+      } else {
+        observer.next(null);
+      }
+      observer.complete();
+    });
+  }
+
+  // Obtener ID del usuario (método síncrono)
+  getUserIdSync(): string {
+    const payload = this.getTokenPayload();
+    return payload ? payload.sub : '';
+  }
+
+  // Obtener email del usuario
+  getUserEmail(): Observable<string | null> {
+    return new Observable(observer => {
+      const payload = this.getTokenPayload();
+      if (payload) {
+        observer.next(payload.email);
       } else {
         observer.next(null);
       }
@@ -73,20 +106,6 @@ export class AuthService {
   // Obtener roles del usuario
   getUserRoles(): Observable<string[]> {
     return of(this.keycloakService.getUserRoles());
-  }
-
-  getUserEmail(): Observable<string | null> {
-    return new Observable(observer => {
-      const token = this.getStoredToken();
-      if (token) {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const email = payload.email;
-        observer.next(email);
-      } else {
-        observer.next(null);
-      }
-      observer.complete();
-    });
   }
 
   // Iniciar sesión (Redirige al login de Keycloak)
@@ -130,20 +149,5 @@ export class AuthService {
   // Limpiar el perfil del usuario en localStorage
   private clearStoredUserProfile(): void {
     localStorage.removeItem('userProfile');
-  }
-
-  // Add a method to get a consistent user ID
-  getUserIdFromToken(): string {
-    const token = this.getStoredToken();
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        return payload.sub; // Keycloak uses 'sub' as the unique identifier
-      } catch (e) {
-        console.error('Error parsing token:', e);
-        return '';
-      }
-    }
-    return '';
   }
 }

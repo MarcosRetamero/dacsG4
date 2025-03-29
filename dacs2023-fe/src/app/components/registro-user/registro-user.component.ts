@@ -48,7 +48,7 @@ export class RegistroUserComponent implements OnInit {
 
   ngOnInit(): void {
     // Get ID directly from token for consistency
-    this.userId = this.authService.getUserIdFromToken();
+    this.userId = this.authService.getUserIdSync();
 
     if (this.userId) {
       console.log('ID para registro:', this.userId);

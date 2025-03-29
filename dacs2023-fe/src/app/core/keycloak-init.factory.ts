@@ -5,8 +5,8 @@ export function initializeKeycloak(keycloak: KeycloakService): () => Promise<boo
     keycloak
       .init({
         config: {
-          url: 'http://localhost:8080', 
-          realm: 'master', 
+          url: 'http://localhost:8080',
+          realm: 'dacsgrupo4',
           clientId: 'dacs2023-fe',
         },
         initOptions: {
