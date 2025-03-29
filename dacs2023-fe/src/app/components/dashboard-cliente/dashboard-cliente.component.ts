@@ -65,6 +65,9 @@ export class DashboardClienteComponent implements OnInit {
       this.cargarHistorialPeso();
     });
   }
+  public getExercisesForRoutine(routineId: number): Exercise[] {
+    return this.exercisesByRoutine[routineId] || [];
+  }
 
   cargarDatosUsuario() {
     if (!this.customerId) return;
