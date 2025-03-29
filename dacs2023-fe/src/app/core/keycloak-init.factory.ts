@@ -6,7 +6,7 @@ export function initializeKeycloak(keycloak: KeycloakService): () => Promise<boo
       .init({
         config: {
           url: 'http://localhost:8080',
-          realm: 'dacsgrupo4',
+          realm: 'master',
           clientId: 'dacs2023-fe',
         },
         initOptions: {
