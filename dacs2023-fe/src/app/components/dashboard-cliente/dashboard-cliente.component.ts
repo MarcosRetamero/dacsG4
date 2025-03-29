@@ -5,6 +5,7 @@ import { KeycloakService } from 'keycloak-angular';
 import { Customer, CustomerService } from 'src/app/core/services/customer.service';
 import { HistoricalProgressService } from 'src/app/core/services/historicalProgress.service';
 import { Routine, Exercise, WorkoutService } from 'src/app/core/services/routine.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
   selector: 'app-dashboard-cliente',
@@ -38,19 +39,26 @@ export class DashboardClienteComponent implements OnInit {
     private keycloakService: KeycloakService,
     private customerService: CustomerService,
     private historicalProgressService: HistoricalProgressService,
-    private workoutService: WorkoutService
+    private workoutService: WorkoutService,
+    private authService: AuthService  // Add this
   ) {}
 
   async ngOnInit() {
-    // Get ID from Keycloak token
-    this.customerId = this.keycloakService.getKeycloakInstance().tokenParsed?.sub ?? '';
+    // Get ID directly from token for consistency
+    this.customerId = this.authService.getUserIdFromToken();
 
     if (!this.customerId) {
       console.error('No se pudo obtener el ID del usuario');
       return;
     }
 
-    console.log('ID obtenido de Keycloak:', this.customerId);
+    console.log('ID obtenido del token:', this.customerId);
+
+    // For debugging, also log the ID from getUserId method
+    this.authService.getUserId().subscribe(id => {
+      console.log('ID obtenido de getUserId:', id);
+    });
+
     this.cargarDatosUsuario();
     this.cargarRutinas();
     this.cargarHistorialPeso();

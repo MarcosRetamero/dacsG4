@@ -47,21 +47,15 @@ export class RegistroUserComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.authService.getUserId().subscribe(
-      (id: string | null) => {
-        if (id) {
-          this.userId = id;
-          this.loadUserData(id);
-        } else {
-          this.errorMessage = 'No se pudo obtener el ID del usuario.';
-          console.error('No se pudo obtener el ID del usuario');
-        }
-      },
-      (error) => {
-        console.error('Error al obtener el ID del usuario:', error);
-        this.errorMessage = 'Error al obtener la identificación del usuario.';
-      }
-    );
+    // Get ID directly from token for consistency
+    this.userId = this.authService.getUserIdFromToken();
+
+    if (this.userId) {
+      console.log('ID para registro:', this.userId);
+      this.loadUserData(this.userId);
+    } else {
+      console.error('No se pudo obtener el ID del usuario');
+    }
   }
 
   loadUserData(id: string): void {

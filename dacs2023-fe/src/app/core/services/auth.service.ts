@@ -131,4 +131,19 @@ export class AuthService {
   private clearStoredUserProfile(): void {
     localStorage.removeItem('userProfile');
   }
+
+  // Add a method to get a consistent user ID
+  getUserIdFromToken(): string {
+    const token = this.getStoredToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.sub; // Keycloak uses 'sub' as the unique identifier
+      } catch (e) {
+        console.error('Error parsing token:', e);
+        return '';
+      }
+    }
+    return '';
+  }
 }
