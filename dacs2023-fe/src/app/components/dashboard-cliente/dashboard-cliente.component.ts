@@ -42,6 +42,7 @@ export class DashboardClienteComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    // Get ID from Keycloak token
     this.customerId = this.keycloakService.getKeycloakInstance().tokenParsed?.sub ?? '';
 
     if (!this.customerId) {
@@ -49,14 +50,17 @@ export class DashboardClienteComponent implements OnInit {
       return;
     }
 
+    console.log('ID obtenido de Keycloak:', this.customerId);
     this.cargarDatosUsuario();
     this.cargarRutinas();
     this.cargarHistorialPeso();
   }
 
   cargarDatosUsuario() {
+    console.log('Intentando cargar datos para el ID:', this.customerId);
     this.customerService.getCustomerById(this.customerId).subscribe({
       next: (data) => {
+        console.log('Datos del usuario recibidos:', data);
         if (data) {
           this.nombre = data.name;
           this.edad = data.age;
@@ -67,6 +71,7 @@ export class DashboardClienteComponent implements OnInit {
           // Calculate IMC if not provided by the backend
           this.grasaCorporal = data.imc ?? Math.trunc(this.pesoActual / Math.pow(this.altura / 100, 2));
         } else {
+          console.log('No se encontraron datos para el usuario, redirigiendo a registro');
           this.router.navigate(['/registro-user']);
         }
       },
