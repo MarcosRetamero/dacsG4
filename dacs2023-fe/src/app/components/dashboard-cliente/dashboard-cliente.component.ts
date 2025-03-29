@@ -2,7 +2,7 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { Chart } from 'chart.js/auto';
 import { Router } from '@angular/router';
 import { KeycloakService } from 'keycloak-angular';
-import { CustomerService } from 'src/app/core/services/customer.service';
+import { Customer, CustomerService } from 'src/app/core/services/customer.service';
 import { HistoricalProgressService } from 'src/app/core/services/historicalProgress.service';
 import { Routine, Exercise, WorkoutService } from 'src/app/core/services/routine.service';
 
@@ -55,31 +55,31 @@ export class DashboardClienteComponent implements OnInit {
   }
 
   cargarDatosUsuario() {
-    this.customerService.getCustomerById(this.customerId).subscribe(
-      (data) => {
+    this.customerService.getCustomerById(this.customerId).subscribe({
+      next: (data) => {
         if (data) {
           this.nombre = data.name;
           this.edad = data.age;
           this.altura = data.stature;
           this.pesoInicial = data.actualWeight;
           this.pesoActual = data.actualWeight;
-          this.grasaCorporal = Math.trunc(this.pesoActual / Math.pow(this.altura / 100, 2));
+          this.objetivoFisico = data.goal ?? '';
+          // Calculate IMC if not provided by the backend
+          this.grasaCorporal = data.imc ?? Math.trunc(this.pesoActual / Math.pow(this.altura / 100, 2));
         } else {
-          console.log('No se encontraron datos del usuario, redirigiendo a registro');
           this.router.navigate(['/registro-user']);
         }
       },
-      (error) => {
+      error: (error) => {
         console.error('Error al obtener los datos del usuario', error);
         if (error.status === 404) {
           console.log('Usuario no encontrado en la BD, redirigiendo a registro');
           this.router.navigate(['/registro-user']);
         } else {
-          // Para otros errores, podríamos mostrar un mensaje al usuario
           console.error('Error inesperado al cargar datos del usuario');
         }
       }
-    );
+    });
   }
 
   cargarRutinas() {
@@ -160,7 +160,9 @@ guardarPeso() {
     const today = new Date().toISOString().split('T')[0];
     const newProgress = {
       date: today,
-      weight: this.pesoTemporal
+      weight: this.pesoTemporal,
+      progressDescription: null,
+      bodyFatPercentage: null
     };
 
     this.historicalProgressService.createProgress(this.customerId, newProgress).subscribe({
@@ -168,6 +170,10 @@ guardarPeso() {
         console.log('Peso actualizado correctamente');
         this.editandoPeso = false;
         this.pesoActual = this.pesoTemporal;
+
+        // Also update the customer data with the new weight
+        this.updateCustomerWeight(this.pesoTemporal);
+
         this.cargarHistorialPeso(); // Reload chart data
       },
       error: (error) => {
@@ -175,7 +181,30 @@ guardarPeso() {
         this.editandoPeso = false;
       }
     });
-}
+  }
+
+  // New method to update customer weight
+  private updateCustomerWeight(newWeight: number) {
+    const customerData: Customer = {
+      id: this.customerId,
+      name: this.nombre,
+      age: this.edad,
+      stature: this.altura,
+      actualWeight: newWeight,
+      goal: this.objetivoFisico,
+      email: this.keycloakService.getKeycloakInstance().tokenParsed?.['email'] || '',
+      imc: Math.trunc(newWeight / Math.pow(this.altura / 100, 2))
+    };
+
+    this.customerService.updateCustomer(this.customerId, customerData).subscribe({
+      next: () => {
+        console.log('Peso actualizado en el perfil del cliente');
+      },
+      error: (error) => {
+        console.error('Error al actualizar el peso en el perfil:', error);
+      }
+    });
+  }
 
 // Update chart creation method
 private createChart() {
@@ -230,8 +259,27 @@ private createChart() {
   }
 
   guardarObjetivo() {
-    this.objetivoFisico = this.objetivoTemporal;
-    this.editandoObjetivo = false;
+    const customerData: Customer = {
+      id: this.customerId,
+      name: this.nombre,
+      age: this.edad,
+      stature: this.altura,
+      actualWeight: this.pesoActual,
+      goal: this.objetivoTemporal,
+      email: this.keycloakService.getKeycloakInstance().tokenParsed?.['email'] || '',
+      imc: this.grasaCorporal
+    };
+
+    this.customerService.updateCustomer(this.customerId, customerData).subscribe({
+      next: () => {
+        this.objetivoFisico = this.objetivoTemporal;
+        this.editandoObjetivo = false;
+      },
+      error: (error) => {
+        console.error('Error al actualizar el objetivo:', error);
+        this.editandoObjetivo = false;
+      }
+    });
   }
 
   cancelarEdicion() {

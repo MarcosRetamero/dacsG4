@@ -104,17 +104,21 @@ export class RegistroUserComponent implements OnInit {
       this.isLoading = true;
       this.errorMessage = '';
 
-      const customerData: Customer = {
-        id: this.userId,
-        name: this.formulario.get('nombre')?.value,
-        age: this.formulario.get('edad')?.value,
-        stature: this.formulario.get('estatura')?.value,
-        goal: '',
-        actualWeight: this.formulario.get('peso')?.value,
-      };
+      this.authService.getUserEmail().subscribe(email => {
+        const customerData: Customer = {
+          id: this.userId,
+          name: this.formulario.get('nombre')?.value,
+          age: this.formulario.get('edad')?.value,
+          stature: this.formulario.get('estatura')?.value,
+          actualWeight: this.formulario.get('peso')?.value,
+          goal: null,
+          imc: null,
+          email: email || ''
+        };
 
-      console.log('Intentando crear usuario con datos:', customerData);
-      this.createCustomer(customerData);
+        console.log('Intentando crear usuario con datos:', customerData);
+        this.createCustomer(customerData);
+      });
     } else {
       console.log('Formulario inválido:', {
         valid: this.formulario.valid,

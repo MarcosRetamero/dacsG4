@@ -75,6 +75,20 @@ export class AuthService {
     return of(this.keycloakService.getUserRoles());
   }
 
+  getUserEmail(): Observable<string | null> {
+    return new Observable(observer => {
+      const token = this.getStoredToken();
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const email = payload.email;
+        observer.next(email);
+      } else {
+        observer.next(null);
+      }
+      observer.complete();
+    });
+  }
+
   // Iniciar sesión (Redirige al login de Keycloak)
   login(): void {
     this.keycloakService.login();

@@ -1,23 +1,25 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, of, throwError } from 'rxjs';
-import { AuthService } from './auth.service'; // Asegúrate de tener un servicio de autenticación
+import { AuthService } from './auth.service';
 
-// Define la interfaz de Customer
+// Define la interfaz de Customer según la respuesta del backend
 export interface Customer {
-  id: string; // ID como string para el UID de Keycloak
-  name: string;
-  age: number;
-  stature: number;
+  id: string;
   actualWeight: number;
-  goal: string
+  stature: number;
+  age: number;
+  name: string;
+  email: string;
+  goal: string | null;
+  imc?: number | null; // Optional field for frontend calculations
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomerService {
-  private apiUrl = 'http://localhost:9001/bff/backend/customer'; // Reemplaza con tu endpoint
+  private apiUrl = 'http://localhost:9001/bff/backend/customer'; // Endpoint base
   private token: string | null = null;
 
   constructor(private http: HttpClient, private authService: AuthService) {
@@ -74,26 +76,25 @@ export class CustomerService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
   }
 
+  // Obtener un cliente por su ID y verificar campos vacíos
+  isNewUser(id: string): Observable<{ customer: Customer | null, isNewUser: boolean }> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${this.token}`
+    });
 
-    // Obtener un cliente por su ID y verificar campos vacíos
-    isNewUser(id: string): Observable<{ customer: Customer | null, isNewUser: boolean }> {
-      const headers = new HttpHeaders({
-        Authorization: `Bearer ${this.token}`
-      });
-
-      return this.http.get<Customer>(`${this.apiUrl}/${id}`, { headers }).pipe(
-        map((customer: Customer) => {
-          const isNewUser = !customer.name || !customer.age || !customer.stature || !customer.actualWeight;
-          return { customer, isNewUser };
-        }),
-        catchError((error) => {
-          // Si el error es 404, considera que es un usuario nuevo
-          if (error.status === 404) {
-            return of({ customer: null, isNewUser: true });
-          }
-          // Otros errores
-          return throwError(() => error);
-        })
-      );
-    }
+    return this.http.get<Customer>(`${this.apiUrl}/${id}`, { headers }).pipe(
+      map((customer: Customer) => {
+        const isNewUser = !customer.name || !customer.age || !customer.stature || !customer.actualWeight;
+        return { customer, isNewUser };
+      }),
+      catchError((error) => {
+        // Si el error es 404, considera que es un usuario nuevo
+        if (error.status === 404) {
+          return of({ customer: null, isNewUser: true });
+        }
+        // Otros errores
+        return throwError(() => error);
+      })
+    );
+  }
 }
