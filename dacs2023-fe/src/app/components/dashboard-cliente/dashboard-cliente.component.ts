@@ -2,9 +2,16 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { Chart } from 'chart.js/auto';
 import { Router } from '@angular/router';
 import { KeycloakService } from 'keycloak-angular';
-import { Customer, CustomerService } from 'src/app/core/services/customer.service';
+import {
+  Customer,
+  CustomerService,
+} from 'src/app/core/services/customer.service';
 import { HistoricalProgressService } from 'src/app/core/services/historicalProgress.service';
-import { Routine, Exercise, WorkoutService } from 'src/app/core/services/routine.service';
+import {
+  Routine,
+  Exercise,
+  WorkoutService,
+} from 'src/app/core/services/routine.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 
 @Component({
@@ -56,7 +63,7 @@ export class DashboardClienteComponent implements OnInit {
       this.customerId = id;
       console.log('ID obtenido desde token:', id);
 
-      this.authService.getUserEmail().subscribe(email => {
+      this.authService.getUserEmail().subscribe((email) => {
         this.email = email || '';
       });
 
@@ -81,7 +88,9 @@ export class DashboardClienteComponent implements OnInit {
           this.pesoInicial = data.actualWeight;
           this.pesoActual = data.actualWeight;
           this.objetivoFisico = data.goal ?? '';
-          this.grasaCorporal = data.imc ?? Math.trunc(this.pesoActual / Math.pow(this.altura / 100, 2));
+          this.grasaCorporal =
+            data.imc ??
+            Math.trunc(this.pesoActual / Math.pow(this.altura / 100, 2));
         } else {
           this.router.navigate(['/registro-user']);
         }
@@ -92,7 +101,7 @@ export class DashboardClienteComponent implements OnInit {
         } else {
           console.error('Error inesperado al cargar datos del usuario', error);
         }
-      }
+      },
     });
   }
 
@@ -103,26 +112,30 @@ export class DashboardClienteComponent implements OnInit {
       (rutinas) => {
         if (rutinas.length) {
           this.planEntrenamiento = rutinas;
-          rutinas.forEach(rutina => {
+          rutinas.forEach((rutina) => {
             this.cargarEjerciciosRutina(rutina.id);
           });
         } else {
-          this.planEntrenamiento = [{
-            id: 0,
-            userId: this.customerId!,
-            routineName: 'No hay rutinas disponibles',
-            day: 0
-          }];
+          this.planEntrenamiento = [
+            {
+              id: 0,
+              userId: this.customerId!,
+              routineName: 'No hay rutinas disponibles',
+              day: 0,
+            },
+          ];
         }
       },
       (error) => {
         console.error('Error al obtener las rutinas del usuario', error);
-        this.planEntrenamiento = [{
-          id: 0,
-          userId: this.customerId!,
-          routineName: 'No hay rutinas disponibles',
-          day: 0
-        }];
+        this.planEntrenamiento = [
+          {
+            id: 0,
+            userId: this.customerId!,
+            routineName: 'No hay rutinas disponibles',
+            day: 0,
+          },
+        ];
       }
     );
   }
@@ -142,50 +155,55 @@ export class DashboardClienteComponent implements OnInit {
   cargarHistorialPeso() {
     if (!this.customerId) return;
 
-    this.historicalProgressService.getProgressByUserId(this.customerId).subscribe({
-      next: (historial) => {
-        if (historial && historial.length > 0) {
-          this.historialPesos = historial.map(entry => ({
-            date: entry.date,
-            weight: entry.weight
-          }));
-          this.pesoActual = historial[historial.length - 1].weight;
-        } else {
+    this.historicalProgressService
+      .getProgressByUserId(this.customerId)
+      .subscribe({
+        next: (historial) => {
+          if (historial && historial.length > 0) {
+            this.historialPesos = historial.map((entry) => ({
+              date: entry.date,
+              weight: entry.weight,
+            }));
+            this.pesoActual = historial[historial.length - 1].weight;
+          } else {
+            this.historialPesos = [{ date: 'Sin datos', weight: 0 }];
+          }
+          this.createChart();
+        },
+        error: (error) => {
+          console.error('Error al obtener historial de peso:', error);
           this.historialPesos = [{ date: 'Sin datos', weight: 0 }];
-        }
-        this.createChart();
-      },
-      error: (error) => {
-        console.error('Error al obtener historial de peso:', error);
-        this.historialPesos = [{ date: 'Sin datos', weight: 0 }];
-        this.createChart();
-      }
-    });
+          this.createChart();
+        },
+      });
   }
 
   guardarPeso() {
-    if (!this.pesoTemporal || this.pesoTemporal <= 0 || !this.customerId) return;
+    if (!this.pesoTemporal || this.pesoTemporal <= 0 || !this.customerId)
+      return;
 
     const today = new Date().toISOString().split('T')[0];
     const newProgress = {
       date: today,
       weight: this.pesoTemporal,
       progressDescription: null,
-      bodyFatPercentage: null
+      bodyFatPercentage: null,
     };
 
-    this.historicalProgressService.createProgress(this.customerId, newProgress).subscribe({
-      next: () => {
-        this.editandoPeso = false;
-        this.pesoActual = this.pesoTemporal;
-        this.updateCustomerWeight(this.pesoTemporal);
-        this.cargarHistorialPeso();
-      },
-      error: (error) => {
-        console.error('Error al actualizar el peso:', error);
-        this.editandoPeso = false;
-      }
-    });
+    this.historicalProgressService
+      .createProgress(this.customerId, newProgress)
+      .subscribe({
+        next: () => {
+          this.editandoPeso = false;
+          this.pesoActual = this.pesoTemporal;
+          this.updateCustomerWeight(this.pesoTemporal);
+          this.cargarHistorialPeso();
+        },
+        error: (error) => {
+          console.error('Error al actualizar el peso:', error);
+          this.editandoPeso = false;
+        },
+      });
   }
 
   private updateCustomerWeight(newWeight: number) {
@@ -199,17 +217,19 @@ export class DashboardClienteComponent implements OnInit {
       actualWeight: newWeight,
       goal: this.objetivoFisico,
       email: this.email,
-      imc: Math.trunc(newWeight / Math.pow(this.altura / 100, 2))
+      imc: Math.trunc(newWeight / Math.pow(this.altura / 100, 2)),
     };
 
-    this.customerService.updateCustomer(this.customerId, customerData).subscribe({
-      next: () => {
-        console.log('Peso actualizado en el perfil del cliente');
-      },
-      error: (error) => {
-        console.error('Error al actualizar el peso en el perfil:', error);
-      }
-    });
+    this.customerService
+      .updateCustomer(this.customerId, customerData)
+      .subscribe({
+        next: () => {
+          console.log('Peso actualizado en el perfil del cliente');
+        },
+        error: (error) => {
+          console.error('Error al actualizar el peso en el perfil:', error);
+        },
+      });
   }
 
   guardarObjetivo() {
@@ -223,21 +243,22 @@ export class DashboardClienteComponent implements OnInit {
       actualWeight: this.pesoActual,
       goal: this.objetivoTemporal,
       email: this.email,
-      imc: this.grasaCorporal
+      imc: this.grasaCorporal,
     };
 
-    this.customerService.updateCustomer(this.customerId, customerData).subscribe({
-      next: () => {
-        this.objetivoFisico = this.objetivoTemporal;
-        this.editandoObjetivo = false;
-      },
-      error: (error) => {
-        console.error('Error al actualizar el objetivo:', error);
-        this.editandoObjetivo = false;
-      }
-    });
+    this.customerService
+      .updateCustomerGoal(this.customerId, this.objetivoTemporal)
+      .subscribe({
+        next: () => {
+          this.objetivoFisico = this.objetivoTemporal;
+          this.editandoObjetivo = false;
+        },
+        error: (error) => {
+          console.error('Error al actualizar el objetivo:', error);
+          this.editandoObjetivo = false;
+        },
+      });
   }
-
   private createChart() {
     if (!this.chartCanvas || !this.historialPesos.length) return;
 
@@ -246,23 +267,27 @@ export class DashboardClienteComponent implements OnInit {
     }
 
     const ctx = this.chartCanvas.nativeElement;
-    const labels = this.historialPesos.map(entry =>
-      entry.date === 'Sin datos' ? entry.date : new Date(entry.date).toLocaleDateString()
+    const labels = this.historialPesos.map((entry) =>
+      entry.date === 'Sin datos'
+        ? entry.date
+        : new Date(entry.date).toLocaleDateString()
     );
-    const data = this.historialPesos.map(entry => entry.weight);
+    const data = this.historialPesos.map((entry) => entry.weight);
 
     this.chart = new Chart(ctx, {
       type: 'line',
       data: {
         labels,
-        datasets: [{
-          label: 'Peso (kg)',
-          data,
-          borderColor: '#710D07',
-          backgroundColor: 'rgba(113, 13, 7, 0.2)',
-          borderWidth: 2,
-          fill: true,
-        }]
+        datasets: [
+          {
+            label: 'Peso (kg)',
+            data,
+            borderColor: '#710D07',
+            backgroundColor: 'rgba(113, 13, 7, 0.2)',
+            borderWidth: 2,
+            fill: true,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -271,11 +296,11 @@ export class DashboardClienteComponent implements OnInit {
           y: {
             beginAtZero: false,
             ticks: {
-              callback: (value) => `${value} kg`
-            }
-          }
-        }
-      }
+              callback: (value) => `${value} kg`,
+            },
+          },
+        },
+      },
     });
   }
 
@@ -303,16 +328,24 @@ export class DashboardClienteComponent implements OnInit {
     this.objetivoTemporal = this.objetivoFisico;
   }
 
-  cambiarObjetivo() {
-    this.editandoObjetivo = true;
-  }
+  //  cambiarObjetivo() {
+  //    this.editandoObjetivo = true;
+  //  }
 
   agregarPeso() {
     this.editandoPeso = true;
   }
 
   private obtenerNombreDia(dia: number): string {
-    const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const diasSemana = [
+      'Domingo',
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+    ];
     return diasSemana[dia];
   }
 }

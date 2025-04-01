@@ -57,6 +57,19 @@ export class CustomerService {
     );
   }
 
+  updateCustomerGoal(id: string, goal: string): Observable<Customer> {
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        });
+        return this.http.put<Customer>(`${this.apiUrl}/${id}/goal`, { goal }, { headers });
+      })
+    );
+  }
+
+
   updateCustomer(id: string, customer: Customer): Observable<Customer> {
     return this.authService.getToken().pipe(
       switchMap(token => {
