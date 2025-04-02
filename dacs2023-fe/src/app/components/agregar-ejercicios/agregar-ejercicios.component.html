@@ -12,13 +12,13 @@
         <label for="day">Día de la Semana</label>
         <select id="day" formControlName="day" *ngIf="!showExerciseForm" [disabled]="isDayDisabled">
           <option value="">Selecciona un día</option>
-          <option value="Lunes">Lunes</option>
-          <option value="Martes">Martes</option>
-          <option value="Miércoles">Miércoles</option>
-          <option value="Jueves">Jueves</option>
-          <option value="Viernes">Viernes</option>
-          <option value="Sábado">Sábado</option>
-          <option value="Domingo">Domingo</option>
+          <option value="1">Lunes</option>
+          <option value="2">Martes</option>
+          <option value="3">Miércoles</option>
+          <option value="4">Jueves</option>
+          <option value="5">Viernes</option>
+          <option value="6">Sábado</option>
+          <option value="7">Domingo</option>
         </select>
         <div *ngIf="showExerciseForm">{{ routineForm.get('day')?.value }}</div>
       </div>

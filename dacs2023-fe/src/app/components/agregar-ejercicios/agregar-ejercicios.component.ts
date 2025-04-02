@@ -150,43 +150,55 @@ export class CreateRoutineComponent implements OnInit {
       this.routineForm.get('routineName')?.valid &&
       this.routineForm.get('day')?.valid &&
       exercisesLength > 0;
-  
+
+    console.log('➡ Validando rutina...');
+    console.log('Formulario válido:', this.routineForm.valid);
+    console.log('Ejercicios cargados:', exercisesLength);
+    console.log('Form values:', this.routineForm.value);
+
     if (isValid) {
       const routineToCreate: Routine = {
         id: 0,
         userId: this.routine.userId,
         routineName: this.routineForm.value.routineName,
-        day: this.routineForm.value.day
+        day: Number(this.routineForm.value.day)  // por las dudas aseguramos tipo
       };
-  
+
+      console.log('➡ Enviando rutina al backend:', routineToCreate);
+
       this.workoutService.createRoutine(routineToCreate).subscribe(
         (createdRoutine) => {
-          const exerciseCreationPromises = this.routine.exercises!.map(exercise => {
+          console.log('✅ Rutina creada con ID:', createdRoutine.id);
+
+          const exerciseCreationPromises = this.routine.exercises!.map((exercise, index) => {
             const exerciseToCreate: Exercise = {
               ...exercise,
               routineId: createdRoutine.id
             };
+
+            console.log(`➡ Enviando ejercicio #${index + 1}:`, exerciseToCreate);
             return this.workoutService.createExercise(exerciseToCreate).toPromise();
           });
-  
+
           Promise.all(exerciseCreationPromises)
             .then(() => {
-              console.log('Todos los ejercicios creados exitosamente');
+              console.log('✅ Todos los ejercicios creados exitosamente');
               this.resetRoutineForm();
               this.showExerciseForm = false;
               this.isDayDisabled = false;
             })
             .catch(error => {
-              console.error('Error al crear los ejercicios:', error);
+              console.error('❌ Error al crear los ejercicios:', error);
             });
         },
-        (error) => console.error('Error al crear la rutina:', error)
+        (error) => console.error('❌ Error al crear la rutina:', error)
       );
     } else {
-      console.log('No se pudo guardar la rutina. Asegúrate de completar todos los campos.');
+      console.log('❌ No se pudo guardar la rutina. Asegúrate de completar todos los campos.');
     }
   }
-  
+
+
 
   resetExerciseForm(): void {
     this.selectedExercise = null;
