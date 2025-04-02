@@ -328,9 +328,9 @@ export class DashboardClienteComponent implements OnInit {
     this.objetivoTemporal = this.objetivoFisico;
   }
 
-  //  cambiarObjetivo() {
-  //    this.editandoObjetivo = true;
-  //  }
+    cambiarObjetivo() {
+      this.editandoObjetivo = true;
+    }
 
   agregarPeso() {
     this.editandoPeso = true;

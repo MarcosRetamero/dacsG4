@@ -59,7 +59,7 @@ export class CreateRoutineComponent implements OnInit {
           description: exerciseData.exercise.description,
           sets: 3,
           reps: 10,
-          image: exerciseData.image.image,
+          image: exerciseData.image?.image ?? '',
           routineId: 0
         }));
       },
@@ -146,31 +146,29 @@ export class CreateRoutineComponent implements OnInit {
 
   saveRoutine(): void {
     const exercisesLength = this.routine.exercises?.length ?? 0;
-
-    if (this.routineForm.valid && exercisesLength > 0) {
-      // Create a routine object without exercises
+    const isValid =
+      this.routineForm.get('routineName')?.valid &&
+      this.routineForm.get('day')?.valid &&
+      exercisesLength > 0;
+  
+    if (isValid) {
       const routineToCreate: Routine = {
         id: 0,
         userId: this.routine.userId,
         routineName: this.routineForm.value.routineName,
         day: this.routineForm.value.day
       };
-
-      // First create the routine
+  
       this.workoutService.createRoutine(routineToCreate).subscribe(
         (createdRoutine) => {
-          console.log('Rutina creada:', createdRoutine);
-
-          // Then create each exercise with the routine ID
-          const exerciseCreationPromises = this.routine.exercises?.map(exercise => {
+          const exerciseCreationPromises = this.routine.exercises!.map(exercise => {
             const exerciseToCreate: Exercise = {
               ...exercise,
               routineId: createdRoutine.id
             };
             return this.workoutService.createExercise(exerciseToCreate).toPromise();
-          }) || [];
-
-          // Wait for all exercises to be created
+          });
+  
           Promise.all(exerciseCreationPromises)
             .then(() => {
               console.log('Todos los ejercicios creados exitosamente');
@@ -188,6 +186,7 @@ export class CreateRoutineComponent implements OnInit {
       console.log('No se pudo guardar la rutina. Asegúrate de completar todos los campos.');
     }
   }
+  
 
   resetExerciseForm(): void {
     this.selectedExercise = null;
