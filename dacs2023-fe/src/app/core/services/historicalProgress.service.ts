@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, switchMap } from 'rxjs';
 import { AuthService } from './auth.service';
 
+/** Modelo completo que incluye el `id` */
 export interface HistoricalProgress {
   id: number;
   date: string;  // Format: YYYY-MM-DD
@@ -11,6 +12,9 @@ export interface HistoricalProgress {
   bodyFatPercentage: number | null;
   customerId: string;  // Keycloak user ID
 }
+
+/** DTO para creación, sin el `id` */
+export type HistoricalProgressCreateDTO = Omit<HistoricalProgress, 'id'>;
 
 @Injectable({
   providedIn: 'root'
@@ -31,17 +35,20 @@ export class HistoricalProgressService {
     );
   }
 
-  createProgress(customerId: string, data: Pick<HistoricalProgress, 'date' | 'weight'>): Observable<HistoricalProgress[]> {
+  /** Método de creación usando el DTO sin `id` */
+  createProgress(progress: HistoricalProgressCreateDTO): Observable<HistoricalProgress> {
     return this.authService.getToken().pipe(
       switchMap(token => {
         const headers = new HttpHeaders({
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         });
-        return this.http.post<HistoricalProgress[]>(`${this.apiUrl}/customer/${customerId}`, data, { headers });
+        return this.http.post<HistoricalProgress>(this.apiUrl, progress, { headers });
       })
     );
   }
+  
+
 
   deleteProgress(id: number): Observable<void> {
     return this.authService.getToken().pipe(

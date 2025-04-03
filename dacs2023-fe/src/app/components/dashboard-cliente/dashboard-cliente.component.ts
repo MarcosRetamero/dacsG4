@@ -6,7 +6,7 @@ import {
   Customer,
   CustomerService,
 } from 'src/app/core/services/customer.service';
-import { HistoricalProgressService } from 'src/app/core/services/historicalProgress.service';
+import { HistoricalProgressCreateDTO, HistoricalProgressService } from 'src/app/core/services/historicalProgress.service';
 import {
   Routine,
   Exercise,
@@ -179,32 +179,34 @@ export class DashboardClienteComponent implements OnInit {
   }
 
   guardarPeso() {
-    if (!this.pesoTemporal || this.pesoTemporal <= 0 || !this.customerId)
-      return;
-
+    if (!this.pesoTemporal || this.pesoTemporal <= 0 || !this.customerId) return;
+  
     const today = new Date().toISOString().split('T')[0];
-    const newProgress = {
+  
+    const newProgress: HistoricalProgressCreateDTO = {
+      customerId: this.customerId!,
       date: today,
       weight: this.pesoTemporal,
       progressDescription: null,
-      bodyFatPercentage: null,
+      bodyFatPercentage: null
     };
-
-    this.historicalProgressService
-      .createProgress(this.customerId, newProgress)
-      .subscribe({
-        next: () => {
-          this.editandoPeso = false;
-          this.pesoActual = this.pesoTemporal;
-          this.updateCustomerWeight(this.pesoTemporal);
-          this.cargarHistorialPeso();
-        },
-        error: (error) => {
-          console.error('Error al actualizar el peso:', error);
-          this.editandoPeso = false;
-        },
-      });
+    
+  
+    this.historicalProgressService.createProgress(newProgress).subscribe({
+      next: () => {
+        this.editandoPeso = false;
+        this.pesoActual = this.pesoTemporal;
+        this.updateCustomerWeight(this.pesoTemporal);
+        this.cargarHistorialPeso();
+      },
+      error: (error) => {
+        console.error('❌ Error al actualizar el peso:', error);
+        this.editandoPeso = false;
+      },
+    });
   }
+  
+  
 
   private updateCustomerWeight(newWeight: number) {
     if (!this.customerId) return;
