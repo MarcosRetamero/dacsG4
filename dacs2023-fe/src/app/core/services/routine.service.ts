@@ -20,6 +20,9 @@ export interface Routine {
   day: number;
 }
 
+// DTO para creación de rutina (sin id)
+export type RoutineCreateDTO = Omit<Routine, 'id'>;
+
 export interface ExerciseImage {
   exercise: {
     id: number;
@@ -68,7 +71,7 @@ export class WorkoutService {
     );
   }
 
-  createRoutine(routine: Routine): Observable<Routine> {
+  createRoutine(routine: RoutineCreateDTO): Observable<Routine> {
     return this.authService.getToken().pipe(
       switchMap(token => {
         const headers = new HttpHeaders({

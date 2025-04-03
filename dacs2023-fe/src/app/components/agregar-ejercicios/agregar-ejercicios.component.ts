@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { WorkoutService, Exercise, Routine, ExerciseImage } from 'src/app/core/services/routine.service';
 
 // Local interface for managing exercises during routine creation
 interface RoutineCreation extends Routine {
   exercises?: Exercise[];
 }
+
+type RoutineCreateDTO = Omit<Routine, 'id'>;
 
 @Component({
   selector: 'app-create-routine',
@@ -22,14 +25,25 @@ export class CreateRoutineComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private workoutService: WorkoutService
+    private workoutService: WorkoutService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    console.log('History state en agregar-ejercicios:', history.state);
     this.initializeForm();
-    this.loadExercises();
-    this.loadHistoryState();
+
+    this.authService.getUserId().subscribe((userId) => {
+      if (!userId) {
+        console.error('❌ No se pudo obtener el ID del usuario');
+        return;
+      }
+
+      console.log('✅ ID obtenido desde token:', userId);
+      this.routine.userId = userId;
+
+      this.loadExercises();
+      this.loadHistoryState();
+    });
   }
 
   private initializeForm(): void {
@@ -40,13 +54,12 @@ export class CreateRoutineComponent implements OnInit {
       reps: [null, [Validators.required, Validators.min(1)]]
     });
 
-    // Initialize routine with empty exercises array to avoid undefined
     this.routine = {
       id: 0,
       userId: '',
       routineName: '',
       day: 0,
-      exercises: [] // Always initialize as empty array
+      exercises: []
     };
   }
 
@@ -68,7 +81,7 @@ export class CreateRoutineComponent implements OnInit {
         this.availableExercises = [];
       }
     });
-}
+  }
 
   private loadHistoryState(): void {
     interface HistoryExerciseData {
@@ -91,7 +104,6 @@ export class CreateRoutineComponent implements OnInit {
 
       this.routine.day = historyData.day;
 
-      // Ensure exercises array exists before mapping
       this.routine.exercises = historyData.ejercicios.map((ejercicio: HistoryExerciseData) => ({
         id: ejercicio.id ?? Math.random(),
         name: ejercicio.name,
@@ -115,10 +127,7 @@ export class CreateRoutineComponent implements OnInit {
 
   addExerciseToRoutine(): void {
     if (this.selectedExercise) {
-      // Ensure exercises array exists
-      if (!this.routine.exercises) {
-        this.routine.exercises = [];
-      }
+      if (!this.routine.exercises) this.routine.exercises = [];
 
       const existingIndex = this.routine.exercises.findIndex(e => e.id === this.selectedExercise!.id);
       const newExercise = {
@@ -138,7 +147,6 @@ export class CreateRoutineComponent implements OnInit {
   }
 
   removeExercise(id: number): void {
-    // Ensure exercises array exists before filtering
     if (this.routine.exercises) {
       this.routine.exercises = this.routine.exercises.filter(e => e.id !== id);
     }
@@ -157,11 +165,10 @@ export class CreateRoutineComponent implements OnInit {
     console.log('Form values:', this.routineForm.value);
 
     if (isValid) {
-      const routineToCreate: Routine = {
-        id: 0,
+      const routineToCreate: RoutineCreateDTO = {
         userId: this.routine.userId,
         routineName: this.routineForm.value.routineName,
-        day: Number(this.routineForm.value.day)  // por las dudas aseguramos tipo
+        day: Number(this.routineForm.value.day)
       };
 
       console.log('➡ Enviando rutina al backend:', routineToCreate);
@@ -198,8 +205,6 @@ export class CreateRoutineComponent implements OnInit {
     }
   }
 
-
-
   resetExerciseForm(): void {
     this.selectedExercise = null;
     this.routineForm.patchValue({ sets: null, reps: null });
@@ -214,7 +219,7 @@ export class CreateRoutineComponent implements OnInit {
       userId: '',
       routineName: '',
       day: 0,
-      exercises: [] // Always initialize as empty array
+      exercises: []
     };
     this.isDayDisabled = false;
   }
