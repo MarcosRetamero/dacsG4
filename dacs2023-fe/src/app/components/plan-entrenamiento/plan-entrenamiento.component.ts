@@ -24,29 +24,25 @@ export class PlanEntrenamientoComponent implements OnInit {
   ngOnInit(): void {
     console.log('History state en plan-entrenamiento:', history.state);
 
-    interface HistoryRoutineData {
-      diaSeleccionado: number | string;
-      userId: string;
-    }
-
     if (history.state && 'datosRutina' in history.state) {
-      const historyData = history.state.datosRutina as HistoryRoutineData;
+      const historyData = history.state.datosRutina as Routine;
 
-      if (historyData.userId) {
-        this.routine.userId = historyData.userId;
+      this.routine = { ...historyData };
+
+      if (!this.routine.userId || !this.routine.day) {
+        console.warn('⚠️ Datos incompletos para la rutina');
+        return;
       }
 
-      this.routine.day = Number(historyData.diaSeleccionado) % 7;
       this.loadRoutine(this.routine.day);
     } else {
       console.log('No se recibieron datos en plan-entrenamiento');
-      this.routine.day = 1;
     }
   }
 
   loadRoutine(day: number): void {
     if (!this.routine.userId) {
-      console.error('No hay userId definido');
+      console.error('❌ No hay userId definido');
       return;
     }
 
@@ -58,11 +54,11 @@ export class PlanEntrenamientoComponent implements OnInit {
           this.routine = foundRoutine;
           this.loadExercises(foundRoutine.id);
         } else {
-          console.log('No hay rutina registrada para este día.');
+          console.log('⚠️ No hay rutina registrada para este día.');
           this.exercises = [];
         }
       },
-      (error) => console.error('Error al obtener la rutina', error)
+      (error) => console.error('❌ Error al obtener la rutina', error)
     );
   }
 
@@ -71,7 +67,7 @@ export class PlanEntrenamientoComponent implements OnInit {
       (exercises: Exercise[]) => {
         this.exercises = exercises;
       },
-      (error) => console.error('Error al obtener ejercicios', error)
+      (error) => console.error('❌ Error al obtener ejercicios', error)
     );
   }
 
@@ -81,22 +77,22 @@ export class PlanEntrenamientoComponent implements OnInit {
 
   deleteRoutine(): void {
     if (!this.routine.id) {
-      console.error('No hay ID de rutina para eliminar');
+      console.error('❌ No hay ID de rutina para eliminar');
       return;
     }
 
     this.workoutService.deleteRoutine(this.routine.id).subscribe(
       () => {
-        console.log('Rutina eliminada correctamente');
+        console.log('✅ Rutina eliminada correctamente');
         this.router.navigate(['/dashboard-cliente']);
       },
-      (error) => console.error('Error al eliminar la rutina', error)
+      (error) => console.error('❌ Error al eliminar la rutina', error)
     );
   }
 
   editRoutine(): void {
     if (!this.routine.id) {
-      console.error('No hay ID de rutina para editar');
+      console.error('❌ No hay ID de rutina para editar');
       return;
     }
 

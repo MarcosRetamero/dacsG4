@@ -43,6 +43,8 @@ export class DashboardClienteComponent implements OnInit {
   editandoPeso: boolean = false;
   pesoTemporal: number = 0;
 
+  private pesoInicialYaAsignado = false;
+
   constructor(
     private router: Router,
     private keycloakService: KeycloakService,
@@ -72,6 +74,7 @@ export class DashboardClienteComponent implements OnInit {
       this.cargarHistorialPeso();
     });
   }
+
   public getExercisesForRoutine(routineId: number): Exercise[] {
     return this.exercisesByRoutine[routineId] || [];
   }
@@ -85,12 +88,16 @@ export class DashboardClienteComponent implements OnInit {
           this.nombre = data.name;
           this.edad = data.age;
           this.altura = data.stature;
-          this.pesoInicial = data.actualWeight;
           this.pesoActual = data.actualWeight;
+
+          // Solo asignamos el peso inicial una vez
+          if (!this.pesoInicialYaAsignado) {
+            this.pesoInicialYaAsignado = true;
+          }
+
           this.objetivoFisico = data.goal ?? '';
           this.grasaCorporal =
-            data.imc ??
-            Math.trunc(this.pesoActual / Math.pow(this.altura / 100, 2));
+            data.imc ?? Math.trunc(this.pesoActual / Math.pow(this.altura / 100, 2));
         } else {
           this.router.navigate(['/registro-user']);
         }
@@ -154,7 +161,7 @@ export class DashboardClienteComponent implements OnInit {
 
   cargarHistorialPeso() {
     if (!this.customerId) return;
-
+  
     this.historicalProgressService
       .getProgressByUserId(this.customerId)
       .subscribe({
@@ -164,10 +171,16 @@ export class DashboardClienteComponent implements OnInit {
               date: entry.date,
               weight: entry.weight,
             }));
+  
+            // ✅ El peso actual es el último
             this.pesoActual = historial[historial.length - 1].weight;
+  
+            // ✅ El peso inicial es el primero
+            this.pesoInicial = historial[0].weight;
           } else {
             this.historialPesos = [{ date: 'Sin datos', weight: 0 }];
           }
+  
           this.createChart();
         },
         error: (error) => {
@@ -177,12 +190,13 @@ export class DashboardClienteComponent implements OnInit {
         },
       });
   }
+  
 
   guardarPeso() {
     if (!this.pesoTemporal || this.pesoTemporal <= 0 || !this.customerId) return;
-  
+
     const today = new Date().toISOString().split('T')[0];
-  
+
     const newProgress: HistoricalProgressCreateDTO = {
       customerId: this.customerId!,
       date: today,
@@ -190,8 +204,7 @@ export class DashboardClienteComponent implements OnInit {
       progressDescription: null,
       bodyFatPercentage: null
     };
-    
-  
+
     this.historicalProgressService.createProgress(newProgress).subscribe({
       next: () => {
         this.editandoPeso = false;
@@ -205,8 +218,6 @@ export class DashboardClienteComponent implements OnInit {
       },
     });
   }
-  
-  
 
   private updateCustomerWeight(newWeight: number) {
     if (!this.customerId) return;
@@ -226,27 +237,16 @@ export class DashboardClienteComponent implements OnInit {
       .updateCustomer(this.customerId, customerData)
       .subscribe({
         next: () => {
-          console.log('Peso actualizado en el perfil del cliente');
+          console.log('✅ Peso actualizado en el perfil del cliente');
         },
         error: (error) => {
-          console.error('Error al actualizar el peso en el perfil:', error);
+          console.error('❌ Error al actualizar el peso en el perfil:', error);
         },
       });
   }
 
   guardarObjetivo() {
     if (!this.customerId) return;
-
-    const customerData: Customer = {
-      id: this.customerId,
-      name: this.nombre,
-      age: this.edad,
-      stature: this.altura,
-      actualWeight: this.pesoActual,
-      goal: this.objetivoTemporal,
-      email: this.email,
-      imc: this.grasaCorporal,
-    };
 
     this.customerService
       .updateCustomerGoal(this.customerId, this.objetivoTemporal)
@@ -261,6 +261,7 @@ export class DashboardClienteComponent implements OnInit {
         },
       });
   }
+
   private createChart() {
     if (!this.chartCanvas || !this.historialPesos.length) return;
 
@@ -338,7 +339,7 @@ export class DashboardClienteComponent implements OnInit {
     this.editandoPeso = true;
   }
 
-  private obtenerNombreDia(dia: number): string {
+  obtenerNombreDia(dia: number): string {
     const diasSemana = [
       'Domingo',
       'Lunes',
@@ -346,8 +347,10 @@ export class DashboardClienteComponent implements OnInit {
       'Miércoles',
       'Jueves',
       'Viernes',
-      'Sábado',
+      'Sábado'
     ];
-    return diasSemana[dia];
+  
+    const index = (dia - 1 + 7) % 7; // ajusta para que 1=Lunes, 7=Domingo
+    return diasSemana[index] || `Día ${dia}`;
   }
 }

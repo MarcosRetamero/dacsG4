@@ -82,6 +82,11 @@
         <!-- Botón de Guardar Rutina visible solo si hay ejercicios -->
         <button type="submit" [disabled]="routine.exercises?.length === 0">Guardar Rutina</button>
       </div>
+
+      <div class="botones-usuario">
+        <button (click)="volver()" class="btn-cancelar">Volver</button>
+      </div>
+
     </form>
   </div>
 </body>
