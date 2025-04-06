@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { KeycloakService } from 'keycloak-angular';
 
 @Component({
   selector: 'app-layout',
@@ -6,14 +7,13 @@ import { Component } from '@angular/core';
   styleUrls: ['./layout.component.css'],
 })
 export class LayoutComponent {
-  menuOpen: boolean = false;
+  
+  menuAbierto = false;
+  constructor(private keycloakService: KeycloakService) {}
 
-  toggleMenu() {
-    this.menuOpen = !this.menuOpen;
-  }
 
-  logout() {
+  logout(): void {    
+    this.keycloakService.logout(window.location.origin + '/login');
     console.log('cerrar sesión');
-    // aquí iría la lógica para cerrar sesión
   }
 }

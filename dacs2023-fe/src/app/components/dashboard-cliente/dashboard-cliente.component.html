@@ -54,6 +54,9 @@
     <div class="plan-entrenamiento">
       <h3>Plan de Entrenamiento</h3>
       <div class="dias-container">
+        <div *ngIf="planEntrenamiento.length === 0">
+          <p class="mensaje-sin-rutinas">No hay rutinas disponibles</p>
+        </div>
         <div class="dia" *ngFor="let dia of planEntrenamiento">
           <h4>{{ obtenerNombreDia(dia.day) }}</h4>
           <p>{{ dia.routineName }}</p>
@@ -70,6 +73,7 @@
           </button>
         </div>
       </div>
+
       <div class="botones-usuario">
         <button class="btn-agregar-rutina" (click)="agregarRutina()">
           Nueva Rutina

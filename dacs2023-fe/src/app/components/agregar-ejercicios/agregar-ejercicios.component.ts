@@ -29,7 +29,7 @@ export class CreateRoutineComponent implements OnInit {
     private workoutService: WorkoutService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initializeForm();
@@ -103,9 +103,18 @@ export class CreateRoutineComponent implements OnInit {
 
     if (history.state && 'datosEjercicios' in history.state) {
       const historyData = history.state.datosEjercicios as HistoryStateData;
-
-      this.routine.day = historyData.day;
-
+  
+      const dayNumber = Number(historyData.day);
+  
+      if (isNaN(dayNumber) || dayNumber < 1 || dayNumber > 7) {
+        console.warn('⚠ Día inválido recibido al editar rutina:', historyData.day);
+        alert('⚠ No se pudo cargar la rutina porque el día es inválido.');
+        return;
+      }
+  
+      this.routine.day = dayNumber;
+      this.routineForm.patchValue({ day: dayNumber });
+  
       this.routine.exercises = historyData.ejercicios.map((ejercicio: HistoryExerciseData) => ({
         id: ejercicio.id ?? Math.random(),
         name: ejercicio.name,
@@ -115,8 +124,6 @@ export class CreateRoutineComponent implements OnInit {
         image: ejercicio.image ?? '',
         routineId: ejercicio.routineId ?? 0
       }));
-
-      this.routineForm.patchValue({ day: historyData.day });
     } else {
       console.log('No se recibieron datos en agregar-ejercicios');
     }
@@ -156,56 +163,91 @@ export class CreateRoutineComponent implements OnInit {
 
   saveRoutine(): void {
     const exercisesLength = this.routine.exercises?.length ?? 0;
-    const isValid =
-      this.routineForm.get('routineName')?.valid &&
-      this.routineForm.get('day')?.valid &&
-      exercisesLength > 0;
-
-    console.log('➡ Validando rutina...');
-    console.log('Formulario válido:', this.routineForm.valid);
-    console.log('Ejercicios cargados:', exercisesLength);
-    console.log('Form values:', this.routineForm.value);
-
-    if (isValid) {
-      const routineToCreate: RoutineCreateDTO = {
-        userId: this.routine.userId,
-        routineName: this.routineForm.value.routineName,
-        day: Number(this.routineForm.value.day)
-      };
-
-      console.log('➡ Enviando rutina al backend:', routineToCreate);
-
-      this.workoutService.createRoutine(routineToCreate).subscribe(
-        (createdRoutine) => {
-          console.log('✅ Rutina creada con ID:', createdRoutine.id);
-
-          const exerciseCreationPromises = this.routine.exercises!.map((exercise, index) => {
-            const exerciseToCreate: Exercise = {
-              ...exercise,
-              routineId: createdRoutine.id
-            };
-
-            console.log(`➡ Enviando ejercicio #${index + 1}:`, exerciseToCreate);
-            return this.workoutService.createExercise(exerciseToCreate).toPromise();
-          });
-
-          Promise.all(exerciseCreationPromises)
-            .then(() => {
-              console.log('✅ Todos los ejercicios creados exitosamente');
-              this.resetRoutineForm();
-              this.showExerciseForm = false;
-              this.isDayDisabled = false;
-            })
-            .catch(error => {
-              console.error('❌ Error al crear los ejercicios:', error);
-            });
-        },
-        (error) => console.error('❌ Error al crear la rutina:', error)
-      );
-    } else {
-      console.log('❌ No se pudo guardar la rutina. Asegúrate de completar todos los campos.');
+    const formValues = this.routineForm.value;
+  
+    // Validaciones específicas con mensajes claros
+    if (!formValues.routineName) {
+      alert('❌ Tenés que ingresar un nombre para la rutina.');
+      return;
     }
+  
+    if (!formValues.day) {
+      alert('❌ Tenés que seleccionar un día.');
+      return;
+    }
+  
+  
+    if (exercisesLength === 0) {
+      alert('❌ Agregá al menos un ejercicio.');
+      return;
+    }
+  
+    const dayToCheck = Number(formValues.day);
+  
+    if (isNaN(dayToCheck) || dayToCheck < 1 || dayToCheck > 7) {
+      alert('❌ El día seleccionado no es válido.');
+      return;
+    }
+  
+    this.routine.day = dayToCheck;
+  
+    this.workoutService.getRoutinesByUserId(this.routine.userId).subscribe({
+      next: (routines) => {
+        const yaExiste = routines.some(r => r.day === dayToCheck);
+  
+        if (yaExiste) {
+          const diaNombre = this.getNombreDia(dayToCheck);
+          alert(`⚠ Ya existe una rutina para el día ${diaNombre}`);
+          return;
+        }
+  
+        const routineToCreate: RoutineCreateDTO = {
+          userId: this.routine.userId,
+          routineName: formValues.routineName,
+          day: dayToCheck
+        };
+  
+        this.workoutService.createRoutine(routineToCreate).subscribe(
+          (createdRoutine) => {
+            console.log('✅ Rutina creada con ID:', createdRoutine.id);
+  
+            const exerciseCreationPromises = this.routine.exercises!.map((exercise) => {
+              const exerciseToCreate: Exercise = {
+                ...exercise,
+                routineId: createdRoutine.id
+              };
+              return this.workoutService.createExercise(exerciseToCreate).toPromise();
+            });
+  
+            Promise.all(exerciseCreationPromises)
+              .then(() => {
+                alert('✅ Rutina creada correctamente');
+                this.resetRoutineForm();
+                this.showExerciseForm = false;
+                this.isDayDisabled = false;
+                this.router.navigate(['/dashboard-cliente']);
+              })
+              .catch(error => {
+                console.error('❌ Error al crear los ejercicios:', error);
+                alert('❌ Ocurrió un error al crear los ejercicios.');
+              });
+          },
+          (error) => {
+            console.error('❌ Error al crear la rutina:', error);
+            alert('❌ No se pudo crear la rutina.');
+          }
+        );
+      },
+      error: (error) => {
+        console.error('❌ Error al verificar rutinas existentes:', error);
+        alert('❌ No se pudieron verificar las rutinas del usuario.');
+      }
+    });
   }
+  
+  
+  
+  
 
   resetExerciseForm(): void {
     this.selectedExercise = null;
@@ -243,5 +285,44 @@ export class CreateRoutineComponent implements OnInit {
   volver(): void {
     this.router.navigate(['/dashboard-cliente']);
   }
-  
+
+  private continuarGuardado(): void {
+    const routineToCreate: RoutineCreateDTO = {
+      userId: this.routine.userId,
+      routineName: this.routineForm.value.routineName,
+      day: Number(this.routineForm.value.day)
+    };
+
+    this.workoutService.createRoutine(routineToCreate).subscribe(
+      (createdRoutine) => {
+        console.log('✅ Rutina creada con ID:', createdRoutine.id);
+
+        const exerciseCreationPromises = this.routine.exercises!.map((exercise, index) => {
+          const exerciseToCreate: Exercise = {
+            ...exercise,
+            routineId: createdRoutine.id
+          };
+          return this.workoutService.createExercise(exerciseToCreate).toPromise();
+        });
+
+        Promise.all(exerciseCreationPromises)
+          .then(() => {
+            console.log('✅ Todos los ejercicios creados exitosamente');
+            this.resetRoutineForm();
+            this.showExerciseForm = false;
+            this.isDayDisabled = false;
+          })
+          .catch(error => {
+            console.error('❌ Error al crear los ejercicios:', error);
+          });
+      },
+      (error) => console.error('❌ Error al crear la rutina:', error)
+    );
+  }
+
+
+  getNombreDia(numero: number): string {
+    const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    return dias[numero - 1] || 'Día inválido';
+  }
 }

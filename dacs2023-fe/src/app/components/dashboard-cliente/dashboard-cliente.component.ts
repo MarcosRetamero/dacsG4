@@ -123,26 +123,13 @@ export class DashboardClienteComponent implements OnInit {
             this.cargarEjerciciosRutina(rutina.id);
           });
         } else {
-          this.planEntrenamiento = [
-            {
-              id: 0,
-              userId: this.customerId!,
-              routineName: 'No hay rutinas disponibles',
-              day: 0,
-            },
-          ];
+          this.planEntrenamiento = [];
         }
+        
       },
       (error) => {
         console.error('Error al obtener las rutinas del usuario', error);
-        this.planEntrenamiento = [
-          {
-            id: 0,
-            userId: this.customerId!,
-            routineName: 'No hay rutinas disponibles',
-            day: 0,
-          },
-        ];
+        this.planEntrenamiento = [];
       }
     );
   }
@@ -341,13 +328,13 @@ export class DashboardClienteComponent implements OnInit {
 
   obtenerNombreDia(dia: number): string {
     const diasSemana = [
-      'Domingo',
       'Lunes',
       'Martes',
       'Miércoles',
       'Jueves',
       'Viernes',
-      'Sábado'
+      'Sábado',
+      'Domingo'
     ];
   
     const index = (dia - 1 + 7) % 7; // ajusta para que 1=Lunes, 7=Domingo

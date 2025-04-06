@@ -334,3 +334,13 @@ footer.footer {
 .peso-actual-container .btn-cancelar {
   margin: 0 5px;
 }
+
+.mensaje-sin-rutinas {
+  font-style: italic;
+  color: var(--dark-grey);
+  background-color: var(--dark-grey);
+  padding: 10px;
+  border-radius: 8px;
+  margin: 10px auto;
+  text-align: center;
+}
