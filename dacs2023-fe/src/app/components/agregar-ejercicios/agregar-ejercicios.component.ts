@@ -286,39 +286,7 @@ export class CreateRoutineComponent implements OnInit {
     this.router.navigate(['/dashboard-cliente']);
   }
 
-  private continuarGuardado(): void {
-    const routineToCreate: RoutineCreateDTO = {
-      userId: this.routine.userId,
-      routineName: this.routineForm.value.routineName,
-      day: Number(this.routineForm.value.day)
-    };
 
-    this.workoutService.createRoutine(routineToCreate).subscribe(
-      (createdRoutine) => {
-        console.log('✅ Rutina creada con ID:', createdRoutine.id);
-
-        const exerciseCreationPromises = this.routine.exercises!.map((exercise, index) => {
-          const exerciseToCreate: Exercise = {
-            ...exercise,
-            routineId: createdRoutine.id
-          };
-          return this.workoutService.createExercise(exerciseToCreate).toPromise();
-        });
-
-        Promise.all(exerciseCreationPromises)
-          .then(() => {
-            console.log('✅ Todos los ejercicios creados exitosamente');
-            this.resetRoutineForm();
-            this.showExerciseForm = false;
-            this.isDayDisabled = false;
-          })
-          .catch(error => {
-            console.error('❌ Error al crear los ejercicios:', error);
-          });
-      },
-      (error) => console.error('❌ Error al crear la rutina:', error)
-    );
-  }
 
 
   getNombreDia(numero: number): string {

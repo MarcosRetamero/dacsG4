@@ -114,4 +114,22 @@ export class CustomerService {
       })
     );
   }
+
+  createProgress(progress: {
+    customerId: string;
+    date: string;
+    weight: number;
+    progressDescription?: string | null;
+    bodyFatPercentage?: number | null;
+  }): Observable<any> {
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        });
+        return this.http.post('http://localhost:9001/bff/backend/historical-progress', progress, { headers });
+      })
+    );
+  }
 }

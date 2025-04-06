@@ -285,11 +285,13 @@ export class DashboardClienteComponent implements OnInit {
         scales: {
           y: {
             beginAtZero: false,
+            min: Math.max(0, Math.min(...data) - 5),  // arranca un poco antes del menor peso
             ticks: {
               callback: (value) => `${value} kg`,
             },
           },
-        },
+        }
+        
       },
     });
   }
