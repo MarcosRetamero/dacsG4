@@ -114,7 +114,11 @@ export class PlanEntrenamientoComponent implements OnInit {
       state: { datosEjercicios },
     });
   }
-
+  limpiarDescripcion(html: string): string {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || '';
+  }
   getDayName(day: number): string {
     const days = [
       'Lunes',
