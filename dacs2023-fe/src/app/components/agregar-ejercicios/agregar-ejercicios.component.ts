@@ -237,6 +237,9 @@ export class CreateRoutineComponent implements OnInit {
                   ...exercise,
                   routineId: createdRoutine.id,
                 };
+
+                console.log('📤 Enviando ejercicio al backend:', exerciseToCreate);
+
                 return this.workoutService
                   .createExercise(exerciseToCreate)
                   .toPromise();
