@@ -125,7 +125,7 @@ export class DashboardClienteComponent implements OnInit {
         } else {
           this.planEntrenamiento = [];
         }
-        
+
       },
       (error) => {
         console.error('Error al obtener las rutinas del usuario', error);
@@ -148,7 +148,7 @@ export class DashboardClienteComponent implements OnInit {
 
   cargarHistorialPeso() {
     if (!this.customerId) return;
-  
+
     this.historicalProgressService
       .getProgressByUserId(this.customerId)
       .subscribe({
@@ -158,16 +158,16 @@ export class DashboardClienteComponent implements OnInit {
               date: entry.date,
               weight: entry.weight,
             }));
-  
+
             // ✅ El peso actual es el último
             this.pesoActual = historial[historial.length - 1].weight;
-  
+
             // ✅ El peso inicial es el primero
             this.pesoInicial = historial[0].weight;
           } else {
             this.historialPesos = [{ date: 'Sin datos', weight: 0 }];
           }
-  
+
           this.createChart();
         },
         error: (error) => {
@@ -177,7 +177,7 @@ export class DashboardClienteComponent implements OnInit {
         },
       });
   }
-  
+
 
   guardarPeso() {
     if (!this.pesoTemporal || this.pesoTemporal <= 0 || !this.customerId) return;
@@ -197,7 +197,8 @@ export class DashboardClienteComponent implements OnInit {
         this.editandoPeso = false;
         this.pesoActual = this.pesoTemporal;
         this.updateCustomerWeight(this.pesoTemporal);
-        this.cargarHistorialPeso();
+        this.grasaCorporal = Math.trunc(this.pesoActual / Math.pow(this.altura / 100, 2)); // 🔥 esta línea actualiza el IMC
+        this.cargarHistorialPeso(); // opcional: para refrescar la gráfica
       },
       error: (error) => {
         console.error('❌ Error al actualizar el peso:', error);
@@ -291,7 +292,7 @@ export class DashboardClienteComponent implements OnInit {
             },
           },
         }
-        
+
       },
     });
   }
@@ -338,7 +339,7 @@ export class DashboardClienteComponent implements OnInit {
       'Sábado',
       'Domingo'
     ];
-  
+
     const index = (dia - 1 + 7) % 7; // ajusta para que 1=Lunes, 7=Domingo
     return diasSemana[index] || `Día ${dia}`;
   }

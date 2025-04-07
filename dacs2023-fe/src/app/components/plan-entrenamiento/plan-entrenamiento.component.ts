@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { WorkoutService, Exercise, Routine } from 'src/app/core/services/routine.service';
+import {
+  WorkoutService,
+  Exercise,
+  Routine,
+} from 'src/app/core/services/routine.service';
 
 @Component({
   selector: 'app-plan-entrenamiento',
@@ -12,14 +16,11 @@ export class PlanEntrenamientoComponent implements OnInit {
     id: 0,
     userId: '',
     day: 1,
-    routineName: ''
+    routineName: '',
   };
   exercises: Exercise[] = [];
 
-  constructor(
-    private router: Router,
-    private workoutService: WorkoutService
-  ) {}
+  constructor(private router: Router, private workoutService: WorkoutService) {}
 
   ngOnInit(): void {
     console.log('History state en plan-entrenamiento:', history.state);
@@ -48,7 +49,7 @@ export class PlanEntrenamientoComponent implements OnInit {
 
     this.workoutService.getRoutinesByUserId(this.routine.userId).subscribe(
       (routines: Routine[]) => {
-        const foundRoutine = routines.find(r => r.day === day);
+        const foundRoutine = routines.find((r) => r.day === day);
 
         if (foundRoutine) {
           this.routine = foundRoutine;
@@ -106,7 +107,7 @@ export class PlanEntrenamientoComponent implements OnInit {
         sets: exercise.sets,
         reps: exercise.reps,
         image: exercise.image || '',
-        routineId: this.routine.id
+        routineId: this.routine.id,
       })),
     };
 
@@ -127,9 +128,9 @@ export class PlanEntrenamientoComponent implements OnInit {
       'Jueves',
       'Viernes',
       'Sábado',
-      'Domingo'
+      'Domingo',
     ];
-    const adjustedIndex = ((day - 1) % 7 + 7) % 7;
+    const adjustedIndex = (((day - 1) % 7) + 7) % 7;
     return days[adjustedIndex] || 'Día no válido';
   }
 }
