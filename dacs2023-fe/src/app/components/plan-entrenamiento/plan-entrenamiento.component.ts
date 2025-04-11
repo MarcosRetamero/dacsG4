@@ -9,7 +9,7 @@ import {
 @Component({
   selector: 'app-plan-entrenamiento',
   templateUrl: './plan-entrenamiento.component.html',
-  styleUrls: ['./plan-entrenamiento.component.css'],
+  styleUrls: ['./plan-entrenamiento.component.css']
 })
 export class PlanEntrenamientoComponent implements OnInit {
   routine: Routine = {
