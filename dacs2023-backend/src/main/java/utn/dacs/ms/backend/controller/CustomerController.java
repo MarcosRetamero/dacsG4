@@ -5,10 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import utn.dacs.ms.backend.dto.CustomerDto;
+import utn.dacs.ms.backend.exceptions.ResourceNotFoundException;
 import utn.dacs.ms.backend.model.entity.Customer;
 import utn.dacs.ms.backend.service.CustomerService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -20,7 +22,7 @@ public class CustomerController {
 
     // Obtener un cliente por su ID
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerDto> getCustomerById(@PathVariable Long id) {
+    public ResponseEntity<CustomerDto> getCustomerById(@PathVariable String id) {
         Optional<Customer> customer = customerService.getById(id);
         return customer.map(c -> ResponseEntity.ok(new CustomerDto(c)))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
@@ -45,7 +47,7 @@ public class CustomerController {
 
     // Actualizar un cliente
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable Long id, @RequestBody CustomerDto customerDto) {
+    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable String id, @RequestBody CustomerDto customerDto) {
         if (!customerService.existById(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -57,7 +59,7 @@ public class CustomerController {
 
     // Eliminar un cliente
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCustomer(@PathVariable String id) {
         if (!customerService.existById(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -65,29 +67,21 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
     
-    // Obtener todos los clientes según su entrenador
-    @GetMapping("/trainer/{trainerId}")
-    public ResponseEntity<List<CustomerDto>> getCustomersByTrainer(@PathVariable Long trainerId) {
-        List<Customer> customers = customerService.getCustomersByTrainer(trainerId);
-        if (customers.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Devolver 404 si no se encuentran clientes
-        }
-        List<CustomerDto> customerDtos = customers.stream()
-                .map(CustomerDto::new)
-                .toList();
-        return ResponseEntity.ok(customerDtos);
+    @PutMapping("/{id}/goal")
+    public ResponseEntity<CustomerDto> updateCustomerGoal(
+            @PathVariable String id,
+            @RequestBody Map<String, String> request) throws ResourceNotFoundException {
+
+        String newGoal = request.get("goal");
+        Customer customer = customerService.getById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        customer.setGoal(newGoal);
+        Customer updated = customerService.save(customer);
+        CustomerDto response = new CustomerDto(updated);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    // Obtener todos los clientes según su plan de entrenamiento
-    @GetMapping("/training-plan/{trainingPlanId}")
-    public ResponseEntity<List<CustomerDto>> getCustomersByTrainingPlan(@PathVariable Long trainingPlanId) {
-        List<Customer> customers = customerService.getCustomersByTrainingPlan(trainingPlanId);
-        if (customers.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Devolver 404 si no se encuentran clientes
-        }
-        List<CustomerDto> customerDtos = customers.stream()
-                .map(CustomerDto::new)
-                .toList();
-        return ResponseEntity.ok(customerDtos);
-    }
+    
 }

@@ -5,21 +5,21 @@ import javax.persistence.*;
 
 @Data
 @Entity
-public class Exercise {
+@Table(name = "routine")
+public class Routine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Column(name = "userid")
+    private String userId;
+    
+    @Column(name = "routinename")
+    private String routineName;
+    
+    
+    
+    private Integer day;
 
-    private String description;
-
-    private String image;
-    
-    private Integer routineid;
-    
-    private Integer reps;
-    
-    private Integer sets;
 }

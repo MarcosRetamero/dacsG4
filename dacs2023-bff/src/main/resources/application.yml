@@ -65,11 +65,11 @@ dacs:
     max-age: 3600
   oauth2:
     service-account:
-      auth: ${IDP_URL:http://localhost:8080/realms/master/protocol/openid-connect}
+      auth: ${IDP_URL:http://localhost:8080/realms/dacsgrupo4/protocol/openid-connect}
       client-id: 'dacs2023-bff'
       secret: 'GjL0216aGJOhgK3UJCx8h1zTbD9sLrqX'
       login:
-        url: ${IDP_LOGIN_URL:http://localhost:8080/realms/master/protocol/openid-connect}
+        url: ${IDP_LOGIN_URL:http://localhost:8080/realms/dacsgrupo4/protocol/openid-connect}
         client-id: ${IDP_CLIENT_ID:dacs2023-fe}
   
 server:

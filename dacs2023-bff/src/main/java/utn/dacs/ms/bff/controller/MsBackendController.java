@@ -2,6 +2,7 @@ package utn.dacs.ms.bff.controller;
 
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +21,7 @@ import utn.dacs.ms.bff.dto.ExerciseDto;
 import utn.dacs.ms.bff.dto.ExerciseRoutineDto;
 import utn.dacs.ms.bff.dto.HistoricalProgressDto;
 import utn.dacs.ms.bff.dto.KeycloakUserDto;
+import utn.dacs.ms.bff.dto.RoutineDto;
 import utn.dacs.ms.bff.dto.TrainerDto;
 import utn.dacs.ms.bff.dto.TrainingPlanDto;
 import utn.dacs.ms.bff.dto.TrainingRoutineDto;
@@ -51,7 +53,7 @@ public class MsBackendController {
     ////////// REQUEST PARA CUSTOMER ////////////
     
     @GetMapping("/customer/{customerId}")
-    public CustomerDto getCustomerInfo(@PathVariable Long customerId) {
+    public CustomerDto getCustomerInfo(@PathVariable String customerId) {
         log.info("Obteniendo información para el cliente con ID: {}", customerId);
         return apiBackendService.getCustomerById(customerId);  // Llama al servicio para obtener la info del cliente.
     }
@@ -67,6 +69,19 @@ public class MsBackendController {
         log.info("Creando un nuevo cliente: {}", customerDto);
         return apiBackendService.createCustomer(customerDto);  // Llama al servicio para crear el cliente.
     }
+    
+    @PutMapping("/customer/{id}/goal")
+    public CustomerDto updateCustomerGoal(@PathVariable String id, @RequestBody Map<String, String> body) {
+        return apiBackendService.updateCustomerGoal(id, body.get("goal"));
+    }
+    
+    @PutMapping("/customer/{id}")
+    public CustomerDto updateCustomer(@PathVariable String id, @RequestBody CustomerDto customerDto) {
+        log.info("Actualizando cliente con ID: {}", id);
+        return apiBackendService.updateCustomer(id, customerDto);
+    }
+
+
     
     ////////// REQUEST PARA EXERCISE ////////////
     
@@ -98,6 +113,21 @@ public class MsBackendController {
         return apiBackendService.updateExercise(exerciseId, exerciseDto);
     }
     
+    
+ // Obtener ejercicios por routineId
+    @GetMapping("/exercise/routine/{routineId}")
+    public List<ExerciseDto> getExercisesByRoutineId(@PathVariable Integer routineId) {
+        log.info("Obteniendo ejercicios para la rutina con ID: {}", routineId);
+        return apiBackendService.getExercisesByRoutineId(routineId);
+    }
+
+    // Crear ejercicio en una rutina
+    @PostMapping("/exercise/routine/{routineId}")
+    public ExerciseDto createExerciseForRoutine(@PathVariable Integer routineId, @RequestBody ExerciseDto exerciseDto) {
+        log.info("Creando ejercicio en la rutina con ID: {}", routineId);
+        return apiBackendService.createExerciseForRoutine(routineId, exerciseDto);
+    }
+
     
     
     ////////// REQUEST PARA EXERCISE ROUTINE ////////////
@@ -131,7 +161,7 @@ public class MsBackendController {
 
     // Ruta para obtener todos los registros de progreso histórico de un cliente
     @GetMapping("/historical-progress/customer/{customerId}")
-    public List<HistoricalProgressDto> getHistoricalProgressByCustomerId(@PathVariable Long customerId) {
+    public List<HistoricalProgressDto> getHistoricalProgressByCustomerId(@PathVariable String customerId) {
         return apiBackendService.getHistoricalProgressByCustomerId(customerId);
     }
 
@@ -140,6 +170,16 @@ public class MsBackendController {
     public HistoricalProgressDto createHistoricalProgress(@RequestBody HistoricalProgressDto historicalProgressDto) {
         return apiBackendService.createHistoricalProgress(historicalProgressDto);
     }
+    
+    @PutMapping("/historical-progress/customer/{customerId}")
+    public HistoricalProgressDto updateLastHistoricalProgressByCustomerId(
+            @PathVariable String customerId,
+            @RequestBody HistoricalProgressDto progressDto) {
+        
+        log.info("Actualizando el último progreso histórico para el cliente con ID: {}", customerId);
+        return apiBackendService.updateLastHistoricalProgressByCustomerId(customerId, progressDto);
+    }
+
  
     
     ////////// REQUEST PARA KEYCLOAK USER ////////////
@@ -228,4 +268,43 @@ public class MsBackendController {
     public TrainingRoutineDto createTrainingRoutine(@RequestBody TrainingRoutineDto trainingRoutineDto) {
         return apiBackendService.createTrainingRoutine(trainingRoutineDto);
     }
+    
+    //////////REQUEST PARA ROUTINE (NO USAR)////////////
+    
+    @GetMapping("/routines/{id}")
+    public RoutineDto getRoutine(@PathVariable Long id) {
+        return apiBackendService.getRoutineById(id);
+    }
+    
+    @GetMapping("/routines")
+    public List<RoutineDto> getAllRoutines() {
+        return apiBackendService.getAllRoutines();
+    }
+    
+    @PostMapping("/routines")
+    public RoutineDto createRoutine(@RequestBody RoutineDto routineDto) {
+        return apiBackendService.createRoutine(routineDto);
+    }
+    
+    @PutMapping("/routines/{id}")
+    public RoutineDto updateRoutine(@PathVariable Long id, @RequestBody RoutineDto routineDto) {
+        return apiBackendService.updateRoutine(id, routineDto);
+    }
+    
+    @DeleteMapping("/routines/{id}")
+    public void deleteRoutine(@PathVariable Long id) {
+        apiBackendService.deleteRoutine(id);
+    }
+    
+    
+    /////// REQUEST PARA ROUTINES (USAR ESTE) ////////
+    
+    
+ // Obtener rutinas por customerId
+    @GetMapping("/routines/customer/{customerId}")
+    public List<RoutineDto> getRoutinesByCustomerId(@PathVariable String customerId) {
+        log.info("Obteniendo rutinas para el cliente con ID: {}", customerId);
+        return apiBackendService.getRoutinesByCustomerId(customerId);  // Llama al servicio para obtener las rutinas por customerId
+    }
+    
 }

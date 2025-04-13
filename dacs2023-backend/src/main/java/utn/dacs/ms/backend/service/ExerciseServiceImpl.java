@@ -51,4 +51,9 @@ public class ExerciseServiceImpl implements ExerciseService {
     public Exercise getBy(Map<String, Object> filter) {
         throw new UnsupportedOperationException("No implementado");
     }
+    
+    @Override
+    public List<Exercise> getByRoutineId(Integer routineId) {
+        return exerciseRepository.findByRoutineid(routineId);
+    }
 }

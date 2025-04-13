@@ -1,6 +1,7 @@
 package utn.dacs.ms.bff.api.client;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +16,7 @@ import utn.dacs.ms.bff.dto.ExerciseDto;
 import utn.dacs.ms.bff.dto.ExerciseRoutineDto;
 import utn.dacs.ms.bff.dto.HistoricalProgressDto;
 import utn.dacs.ms.bff.dto.KeycloakUserDto;
+import utn.dacs.ms.bff.dto.RoutineDto;
 import utn.dacs.ms.bff.dto.TrainerDto;
 import utn.dacs.ms.bff.dto.TrainingPlanDto;
 import utn.dacs.ms.bff.dto.TrainingRoutineDto;
@@ -41,7 +43,7 @@ public interface MsApiBackendClient {
     
     // Obtener un cliente por ID
     @GetMapping("/customer/{id}")
-    CustomerDto getCustomerById(@RequestParam("id") Long id);
+    CustomerDto getCustomerById(@RequestParam("id") String id);
 
     // Crear un nuevo cliente
     @PostMapping("/customer")
@@ -49,6 +51,12 @@ public interface MsApiBackendClient {
 
     @GetMapping("/customer")
 	List<CustomerDto> getAllCustomers();
+    
+    @PutMapping("/customer/{id}/goal")
+    CustomerDto updateCustomerGoal(@PathVariable("id") String id, @RequestBody Map<String, String> request);
+    
+    @PutMapping("/customer/{id}")
+    CustomerDto updateCustomer(@PathVariable String id, @RequestBody CustomerDto dto);
     
     
     ///////// CLIENT PARA EXERCISE //////////
@@ -64,6 +72,15 @@ public interface MsApiBackendClient {
 
     @PutMapping("/exercise/{exerciseId}")
     ExerciseDto updateExercise(@PathVariable("exerciseId") Long exerciseId, @RequestBody ExerciseDto exerciseDto);
+    
+ // Obtener ejercicios por routineId
+    @GetMapping("/exercise/routine/{routineId}")
+    List<ExerciseDto> getExercisesByRoutineId(@PathVariable("routineId") Integer routineId);
+
+    // Crear ejercicio para una rutina específica
+    @PostMapping("/exercise/routine/{routineId}")
+    ExerciseDto createExerciseForRoutine(@PathVariable("routineId") Integer routineId, @RequestBody ExerciseDto exerciseDto);
+
     
     
     ///////// CLIENT PARA EXERCISE ROUTINE //////////
@@ -89,11 +106,18 @@ public interface MsApiBackendClient {
 
     // Método para obtener todos los registros de progreso histórico de un cliente
     @GetMapping("/historical-progress/customer/{customerId}")
-    List<HistoricalProgressDto> getHistoricalProgressByCustomerId(@PathVariable("customerId") Long customerId);
+    List<HistoricalProgressDto> getHistoricalProgressByCustomerId(@PathVariable("customerId") String customerId);
 
     // Método para crear un nuevo registro de progreso histórico
     @PostMapping("/historical-progress")
     HistoricalProgressDto createHistoricalProgress(@RequestBody HistoricalProgressDto historicalProgressDto);
+    
+    @PutMapping("/historical-progress/customer/{customerId}")
+    HistoricalProgressDto updateLastHistoricalProgressByCustomerId(
+        @PathVariable("customerId") String customerId,
+        @RequestBody HistoricalProgressDto progressDto
+    );
+
 
     
     ///////// CLIENT PARA KEYCLOAK USER //////////
@@ -158,4 +182,27 @@ public interface MsApiBackendClient {
     // Crear una nueva rutina de entrenamiento
     @PostMapping("/training-routine")
     TrainingRoutineDto createTrainingRoutine(@RequestBody TrainingRoutineDto trainingRoutineDto);
+    
+    ///////// CLIENT PARA ROUTINE //////////
+
+    @GetMapping("/routines/{id}")
+    RoutineDto getRoutineById(@PathVariable("id") Long id);
+
+    @GetMapping("/routines")
+    List<RoutineDto> getAllRoutines();
+
+    @PostMapping("/routines")
+    RoutineDto createRoutine(@RequestBody RoutineDto routineDto);
+
+    @PutMapping("/routines/{id}")
+    RoutineDto updateRoutine(@PathVariable("id") Long id, @RequestBody RoutineDto routineDto);
+
+    @DeleteMapping("/routines/{id}")
+    void deleteRoutine(@PathVariable("id") Long id);
+
+    @GetMapping("/routines/customer/{customerId}")
+	List<RoutineDto> getRoutinesByCustomerId(@RequestParam("customerId") String customerId); /// PARA OBTENER RUTINAS POR ID DE CUSTOMER
+    
+    
+
 }

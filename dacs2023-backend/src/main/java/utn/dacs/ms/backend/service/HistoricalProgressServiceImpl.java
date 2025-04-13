@@ -51,4 +51,27 @@ public class HistoricalProgressServiceImpl implements HistoricalProgressService 
     public HistoricalProgress getBy(Map<String, Object> filter) {
         throw new UnsupportedOperationException("No implementado");
     }
+    
+    public List<HistoricalProgress> getByCustomerId(String customerid) {
+        return historicalProgressRepository.findByCustomerid(customerid);
+    }
+    
+    @Override
+    public HistoricalProgress updateLastByCustomerId(String customerId, HistoricalProgress updatedData) {
+        List<HistoricalProgress> progressList = historicalProgressRepository.findByCustomerid(customerId);
+        if (progressList.isEmpty()) {
+            throw new RuntimeException("No historical progress found for customerId: " + customerId);
+        }
+
+        HistoricalProgress latest = progressList.stream()
+            .max((a, b) -> a.getDate().compareTo(b.getDate()))
+            .orElseThrow(() -> new RuntimeException("Unable to determine latest progress"));
+
+        // Actualizamos los datos necesarios
+        latest.setWeight(updatedData.getWeight());
+        latest.setDate(updatedData.getDate());
+
+        return historicalProgressRepository.save(latest);
+    }
+
 }

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 @Data
 @Entity
+@Table(name = "historicalprogress")
 public class HistoricalProgress {
 
     @Id
@@ -16,7 +17,6 @@ public class HistoricalProgress {
 
     private Double weight;
 
-    @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+
+    private String customerid;
 }
