@@ -1,55 +1,136 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-
-type Exercise = {
-  name: string;
-  sets: number;
-  reps: number;
-  imageUrl?: string;
-};
-
-type TrainingDay = {
-  day: string;
-  muscleGroups: string;
-  exercises: Exercise[];
-};
+import {
+  WorkoutService,
+  Exercise,
+  Routine,
+} from 'src/app/core/services/routine.service';
 
 @Component({
   selector: 'app-plan-entrenamiento',
   templateUrl: './plan-entrenamiento.component.html',
   styleUrls: ['./plan-entrenamiento.component.css']
-
 })
 export class PlanEntrenamientoComponent implements OnInit {
-  trainingPlan: TrainingDay[] = [
-    {
-      day: 'Lunes',
-      muscleGroups: 'Pecho y tríceps',
-      exercises: [
-        { name: 'Press de banca', sets: 4, reps: 10, imageUrl: 'assets/images/press_banca.jpg' },
-        { name: 'Aperturas con mancuernas', sets: 3, reps: 12, imageUrl: 'assets/images/aperturas_mancuernas.jpg' },
-        { name: 'Fondos', sets: 3, reps: 15 },
-      ],
-    },
-    {
-      day: 'Martes',
-      muscleGroups: 'Piernas y glúteos',
-      exercises: [
-        { name: 'Sentadillas', sets: 4, reps: 12 },
-        { name: 'Peso muerto', sets: 3, reps: 10 },
-      ],
-    }
-  ];
+  routine: Routine = {
+    id: 0,
+    userId: '',
+    day: 1,
+    routineName: '',
+  };
+  exercises: Exercise[] = [];
 
-  filteredPlan: TrainingDay | undefined;
-
-  constructor(private route: ActivatedRoute) {}
+  constructor(private router: Router, private workoutService: WorkoutService) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      const selectedDay = params['day'];
-      this.filteredPlan = this.trainingPlan.find(day => day.day === selectedDay);
+    console.log('History state en plan-entrenamiento:', history.state);
+
+    if (history.state && 'datosRutina' in history.state) {
+      const historyData = history.state.datosRutina as Routine;
+
+      this.routine = { ...historyData };
+
+      if (!this.routine.userId || !this.routine.day) {
+        console.warn('⚠️ Datos incompletos para la rutina');
+        return;
+      }
+
+      this.loadRoutine(this.routine.day);
+    } else {
+      console.log('No se recibieron datos en plan-entrenamiento');
+    }
+  }
+
+  loadRoutine(day: number): void {
+    if (!this.routine.userId) {
+      console.error('❌ No hay userId definido');
+      return;
+    }
+
+    this.workoutService.getRoutinesByUserId(this.routine.userId).subscribe(
+      (routines: Routine[]) => {
+        const foundRoutine = routines.find((r) => r.day === day);
+
+        if (foundRoutine) {
+          this.routine = foundRoutine;
+          this.loadExercises(foundRoutine.id);
+        } else {
+          console.log('⚠️ No hay rutina registrada para este día.');
+          this.exercises = [];
+        }
+      },
+      (error) => console.error('❌ Error al obtener la rutina', error)
+    );
+  }
+
+  loadExercises(routineId: number): void {
+    this.workoutService.getExercisesByRoutineId(routineId).subscribe(
+      (exercises: Exercise[]) => {
+        this.exercises = exercises;
+      },
+      (error) => console.error('❌ Error al obtener ejercicios', error)
+    );
+  }
+
+  goBack(): void {
+    this.router.navigate(['/dashboard-cliente']);
+  }
+
+  deleteRoutine(): void {
+    if (!this.routine.id) {
+      console.error('❌ No hay ID de rutina para eliminar');
+      return;
+    }
+
+    this.workoutService.deleteRoutine(this.routine.id).subscribe(
+      () => {
+        console.log('✅ Rutina eliminada correctamente');
+        this.router.navigate(['/dashboard-cliente']);
+      },
+      (error) => console.error('❌ Error al eliminar la rutina', error)
+    );
+  }
+
+  editRoutine(): void {
+    if (!this.routine.id) {
+      console.error('❌ No hay ID de rutina para editar');
+      return;
+    }
+
+    const datosEjercicios = {
+      id: this.routine.id,
+      day: this.routine.day,
+      ejercicios: this.exercises.map((exercise: Exercise) => ({
+        id: exercise.id,
+        name: exercise.name,
+        description: exercise.description,
+        sets: exercise.sets,
+        reps: exercise.reps,
+        image: exercise.image || '',
+        routineId: this.routine.id,
+      })),
+    };
+
+    this.router.navigate(['/agregar-ejercicios'], {
+      state: { datosEjercicios },
     });
+  }
+  limpiarDescripcion(html: string): string {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || '';
+  }
+  getDayName(day: number): string {
+    const days = [
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+      'Domingo',
+    ];
+    const adjustedIndex = (((day - 1) % 7) + 7) % 7;
+    return days[adjustedIndex] || 'Día no válido';
   }
 }

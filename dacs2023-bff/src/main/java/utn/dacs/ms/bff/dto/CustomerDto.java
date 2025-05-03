@@ -2,23 +2,21 @@ package utn.dacs.ms.bff.dto;
 
 public class CustomerDto {
 
-    private Long id;
+    private String id;
     private Double actualWeight; 
     private Integer stature;
     private Integer age;
-    private String name;
-    private Long trainingPlanId; 
- 	private Long assignedTrainerId;
-    private Long userId;
-    private Double imc;	
+    private String name;	
+    private String email;
+    private String goal;
 
     // Getters and setters
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -54,35 +52,20 @@ public class CustomerDto {
         this.name = name;
     }
 
-    public Long getTrainingPlanId() {
-        return trainingPlanId;
-    }
+  
+	public String getEmail() {
+		return email;
+	}
 
-    public Long getAssignedTrainerId() {
-        return assignedTrainerId;
-    }
-    
-    public void setTrainingPlanId(Long trainingPlanId) {
-        this.trainingPlanId = trainingPlanId;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public void setAssignedTrainerId(Long assignedTrainerId) {
-        this.assignedTrainerId = assignedTrainerId;
-    }
+	public String getGoal() {
+		return goal;
+	}
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Double getImc() {
-        return imc;
-    }
-
-    public void setImc(Double imc) {
-		this.imc = imc;
+	public void setGoal(String goal) {
+		this.goal = goal;
 	} 
 }

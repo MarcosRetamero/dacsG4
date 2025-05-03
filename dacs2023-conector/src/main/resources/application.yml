@@ -6,8 +6,11 @@ spring:
 
 
 logging:
-  level:
-    root: info
+ level:
+  root: info
+  feign: debug
+  utn.dacs.ms.conector.api.client: debug
+  org.springframework.cloud.openfeign: debug
 management:
   security:
     enabled: false
@@ -28,7 +31,7 @@ feign:
       default:
         connectTimeout: 60000
         readTimeout: 60000
-        loggerLevel: basic
+        loggerLevel: full
     apiClient:
         url: '${API_URL:https://wger.de/api/v2}'
        
@@ -44,6 +47,7 @@ dacs:
 api:
   token:
      url: 'https://wger.de/api/v2'
+     value: 'Token 0a5de7e3f90a829da09e40f64c1744818296cbf3'
   credentials:
      username: 'marcos_24'
      password: 'aBcD_wger_24'

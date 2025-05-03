@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public class HistoricalProgressDto {
 
     private Long id;
-    private Long customerId;
+    private String customerid;
     private LocalDate date;
     private String progressDescription;
     private Double weight;
@@ -21,12 +21,12 @@ public class HistoricalProgressDto {
         this.id = id;
     }
 
-    public Long getCustomerId() {
-        return customerId;
+    public String getCustomerId() {
+        return customerid;
     }
 
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
+    public void setCustomerId(String customerId) {
+        this.customerid = customerId;
     }
 
     public LocalDate getDate() {

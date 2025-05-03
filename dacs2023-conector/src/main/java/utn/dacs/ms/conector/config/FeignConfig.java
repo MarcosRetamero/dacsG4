@@ -1,28 +1,24 @@
 package utn.dacs.ms.conector.config;
 
 import feign.RequestInterceptor;
-import utn.dacs.ms.conector.service.ServiceAuth;
+import feign.RequestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class FeignConfig {
 
-    private final ServiceAuth serviceAuth;
-
-    public FeignConfig(ServiceAuth serviceAuth) {
-        this.serviceAuth = serviceAuth;
-    }
+    @Value("${api.token.value}")
+    private String apiToken;  // Este valor viene de application.yml
 
     @Bean
     public RequestInterceptor requestInterceptor() {
-        return requestTemplate -> {
-            String accessToken = serviceAuth.getAccessToken();
-            if (accessToken == null) {
-                throw new RuntimeException("Access token is missing or expired.");
+        return new RequestInterceptor() {
+            @Override
+            public void apply(RequestTemplate template) {
+                template.header("Authorization", apiToken);
             }
-            requestTemplate.header("Authorization", "Bearer " + accessToken);
         };
     }
-    
 }

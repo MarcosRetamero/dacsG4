@@ -9,21 +9,25 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
 // Keycloak
 import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
-import { initializeKeycloak } from './keycloak-init.factory';
-import { AuthInterceptor } from './auth/auth.interceptor';
+//import { initializeKeycloak } from './keycloak-init.factory';
+import { initializeKeycloak } from './core/keycloak-init.factory';
+//import { AuthInterceptor } from './auth/auth.interceptor';
 
 // Componentes
 import { DashboardClienteComponent } from './components/dashboard-cliente/dashboard-cliente.component';
 import { LayoutComponent } from './components/layout/layout.component';
-import { PanelEntrenadorComponent } from './components/panel-entrenador/panel-entrenador.component';
-import { CrearPlanComponent } from './components/crear-plan/crear-plan.component';
-import { StudentDetailsComponent } from './components/student-details/student-details.component';
+//import { PanelEntrenadorComponent } from './components/panel-entrenador/panel-entrenador.component';
+//import { CrearPlanComponent } from './components/crear-plan/crear-plan.component';
+//import { StudentDetailsComponent } from './components/student-details/student-details.component';
 import { RegistroUserComponent } from './components/registro-user/registro-user.component';
-import { AgregarAlumnoComponent } from './components/agregar-alumno/agregar-alumno.component';
+//import { AgregarAlumnoComponent } from './components/agregar-alumno/agregar-alumno.component';
 import { PlanEntrenamientoComponent } from './components/plan-entrenamiento/plan-entrenamiento.component';
-import { RegistroEntrenadorComponent } from './components/registro-entrenador/registro-entrenador.component';
-import { TestBffComponent } from './components/testbff/testbff.component';
-import { TestBddComponent } from './components/testbdd/testbdd.component';
+//import { RegistroEntrenadorComponent } from './components/registro-entrenador/registro-entrenador.component';
+//import { TestBffComponent } from './components/testbff/testbff.component';
+//import { TestBddComponent } from './components/testbdd/testbdd.component';
+import { WorkoutService, Exercise, Routine, ExerciseImage } from './core/services/routine.service'
+import {CreateRoutineComponent} from './components/agregar-ejercicios/agregar-ejercicios.component'
+
 
 
 // Angular Material
@@ -40,15 +44,17 @@ import { MatCardModule } from '@angular/material/card';
     AppComponent,
     DashboardClienteComponent,
     LayoutComponent,
-    PanelEntrenadorComponent,
-    CrearPlanComponent,
-    StudentDetailsComponent,
+    //PanelEntrenadorComponent,
+    //CrearPlanComponent,
+    //StudentDetailsComponent,
     RegistroUserComponent,
-    AgregarAlumnoComponent,
+    //AgregarAlumnoComponent,
     PlanEntrenamientoComponent,
-    RegistroEntrenadorComponent,
-    TestBffComponent,
-    TestBddComponent
+    //RegistroEntrenadorComponent,
+    //TestBffComponent,
+    //TestBddComponent
+    CreateRoutineComponent
+    
   ],
   imports: [
     BrowserModule,
@@ -71,12 +77,12 @@ import { MatCardModule } from '@angular/material/card';
       useFactory: initializeKeycloak,
       deps: [KeycloakService],
       multi: true
-    },
+    }/*,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
-    }    
+    }   */ 
   ],
   bootstrap: [AppComponent],
 })

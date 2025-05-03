@@ -1,115 +1,74 @@
 import { Component, OnInit } from '@angular/core';
-import { KeycloakService } from 'keycloak-angular';
-import { KeycloakProfile } from 'keycloak-js';
-import { ApiService } from './core/services/apiservice.service';
+import { Router } from '@angular/router';
+import { AuthService } from './core/services/auth.service';
 import { CustomerService } from './core/services/customer.service';
-import { TrainerService } from './core/services/trainer.service';
-import { ITestResponse } from './core/models/response.interface';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  title = 'dacs2023';
   public isLogueado = false;
-  public testResponse: ITestResponse | null = null;
-  public apiPing = "";
-  public apiConectorPing = "";
-  public perfilUsuario: KeycloakProfile | null = null;
-  public role = false;
-  public userId: string | null = null; // Agregar el userId
+  public userId: string | null = null;
 
   constructor(
-    private readonly keycloak: KeycloakService,
-    private apiService: ApiService,
-    private customerService: CustomerService,  // Inyectar CustomerService
-    private trainerService: TrainerService    // Inyectar TrainerService
+    private readonly authService: AuthService,
+    private readonly customerService: CustomerService,
+    private readonly router: Router
   ) {}
 
-  public async ngOnInit() {
-    try {
-      this.isLogueado = await this.keycloak.isLoggedIn();
-      console.log('Is logged in:', this.isLogueado);
+  public ngOnInit(): void {
+    this.authService.isAuthenticated().subscribe(async (isLoggedIn) => {
+      this.isLogueado = isLoggedIn;
 
-      if (this.isLogueado) {
-        // Obtener el `sub` de Keycloak
-        this.userId = this.keycloak.getKeycloakInstance().tokenParsed?.sub ?? null;
-        //this.userId = this.keycloak.getKeycloakInstance().tokenParsed.sub;
-        console.log('User ID (sub) from Keycloak:', this.userId);
-
-        this.perfilUsuario = await this.keycloak.loadUserProfile();
-        console.log('User profile:', this.perfilUsuario);
-
-        // Verificar si el usuario tiene algún rol
-        this.role = await this.keycloak.isUserInRole("ROLE-A");
-        console.log('Has ROLE-A:', this.role);
-
-        // Mostrar el token JWT
-        const token = await this.keycloak.getToken();
-        console.log('JWT Token:', token);
-
-        // Llamar a la API para registrar o asociar al usuario con `trainer` o `customer`
-        this.registrarUsuarioSiEsNecesario();
-
-        // Realizar las llamadas a la API
-        this.apiService.getTest().subscribe({
-          next: (resp) => this.testResponse = resp,
-          error: (err) => console.error('Error in getTest:', err)
-        });
-
-        this.apiService.getPing().subscribe({
-          next: (resp) => this.apiPing = resp,
-          error: (err) => console.error('Error in getPing:', err)
-        });
-
-        this.apiService.getConectorPing().subscribe({
-          next: (resp) => this.apiConectorPing = resp,
-          error: (err) => console.error('Error in getConectorPing:', err)
-        });
-      } else {
-        await this.keycloak.login({
-          redirectUri: window.location.origin
-        });
+      if (!isLoggedIn) {
+        // Redirige al login si no hay sesión activa
+        await this.authService.login();
+        return;
       }
-    } catch (error) {
-      console.error('Error in ngOnInit:', error);
-    }
-  }
 
-  private registrarUsuarioSiEsNecesario() {
-    if (this.userId) { // Verificamos que userId no sea null
-      // Verificar si el usuario es un entrenador
-      this.trainerService.getTrainerByUserId(this.userId).subscribe({
-        next: (trainer) => {
-          if (!trainer) {
-            console.log('User is not a trainer, checking if user is a customer');
-            // Si no es entrenador, verificar si es un cliente
-            this.customerService.getCustomerByUserId(this.userId!).subscribe({
-              next: (customer) => {
-                if (!customer) {
-                  console.log('User is neither a trainer nor a customer');
-                  // Si el usuario no es ni entrenador ni cliente, registrar al usuario
-                  const customerData = { user_id: this.userId!, name: this.perfilUsuario?.firstName };
-                  this.customerService.addCustomer(customerData).subscribe();
-                }
-              },
-              error: (err) => console.error('Error fetching customer:', err)
-            });
+      // Obtiene el ID del usuario desde el token actual
+      this.authService.getUserId().subscribe((id) => {
+        this.userId = id;
+
+        if (!this.userId) {
+          console.error('No se pudo obtener el User ID desde el token.');
+          return;
+        }
+
+        // Verifica si el usuario existe en la base de datos
+        this.customerService.isNewUser(this.userId).subscribe({
+          next: ({ isNewUser }) => {
+            if (isNewUser) {
+              console.log('Usuario nuevo, redirigiendo a registro');
+              if (this.router.url !== '/registro-user') {
+                this.router.navigate(['/registro-user']);
+              }
+            } else {
+              console.log('Usuario existente, redirigiendo a dashboard');
+              if (this.router.url !== '/dashboard-cliente') {
+                this.router.navigate(['/dashboard-cliente']);
+              }
+            }
+          },
+          error: (err) => {
+            console.error('Error al verificar usuario:', err);
+            // En caso de error asumimos que es nuevo
+            if (this.router.url !== '/registro-user') {
+              this.router.navigate(['/registro-user']);
+            }
           }
-        },
-        error: (err) => console.error('Error fetching trainer:', err)
+        });
       });
-    }
+    });
   }
-  
 
   public iniciarSesion() {
-    this.keycloak.login();
+    this.authService.login();
   }
 
   public cerrarSesion() {
-    this.keycloak.logout();
+    this.authService.logout();
   }
 }

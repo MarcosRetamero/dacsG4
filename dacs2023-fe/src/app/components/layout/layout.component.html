@@ -2,20 +2,21 @@
   <div class="navbar-left">
     <h1 class="app-name">MuscleHub</h1>
   </div>
+
   <div class="navbar-right">
-    <div class="notifications">
-      <i class="fas fa-bell"></i>
-    </div>
-    <div class="account-menu">
-      <span>Cuenta</span>
-      <i class="fas fa-chevron-down"></i>
-      <ul class="dropdown-menu">
-        <li>Perfil</li>
-        <li>Cerrar sesión</li>
+
+
+    <div class="account-menu-wrapper">
+      <div class="account-menu-toggle" (click)="menuAbierto = !menuAbierto">
+        <span>Cuenta</span>
+        <i class="fas fa-chevron-down" [class.rotate]="menuAbierto"></i>
+      </div>
+
+      <ul class="dropdown-menu" *ngIf="menuAbierto">
+        <li (click)="logout()">Cerrar sesión</li>
       </ul>
     </div>
   </div>
 </div>
 
-<!-- Aquí se cargará el contenido específico de cada página -->
 <router-outlet></router-outlet>

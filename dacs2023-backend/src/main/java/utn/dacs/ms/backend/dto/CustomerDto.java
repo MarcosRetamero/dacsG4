@@ -4,25 +4,25 @@ import utn.dacs.ms.backend.model.entity.Customer;
 
 public class CustomerDto {
 
-    private Long id;
-    private Double actualWeight; // Corrigiendo el nombre para que coincida con la entidad
+    private String id;
+    private Float actualWeight; // Corrigiendo el nombre para que coincida con la entidad
     private Integer stature;
     private Integer age;
     private String name;
-    private Long trainingPlanId; // Cambié 'id_training_plan' por 'trainingPlanId' para mayor claridad
- 	private Long assignedTrainerId; // Cambié 'assignedTrainer' por 'assignedTrainerId'
-    private Long userId;
-
-
+    private String goal;
+    private String email;
+    
+    public CustomerDto() {
+    }
+    
 	public CustomerDto(Customer customer) {
         this.id = customer.getId();
         this.actualWeight = customer.getActualWeight(); // Asegúrate de que el getter sea 'getActualWeight'
         this.stature = customer.getStature();
         this.age = customer.getAge();
         this.name = customer.getName();
-        this.trainingPlanId = (customer.getTrainingPlan() != null) ? customer.getTrainingPlan().getId() : null; // Asignar el ID del plan de entrenamiento
-        this.assignedTrainerId = (customer.getAssignedTrainer() != null) ? customer.getAssignedTrainer().getId() : null; // Asignar el ID del entrenador
-        this.userId = (customer.getUser() != null) ? customer.getUser().getId() : null; // Asignar el ID del usuario de Keycloak
+        this.email = customer.getEmail();
+        this.goal = customer.getGoal();
 	}
 	
 	
@@ -33,25 +33,27 @@ public class CustomerDto {
 		customer.setStature(this.stature);
 		customer.setAge(this.age);
 		customer.setName(this.name);
+		customer.setEmail(this.email);
+		customer.setGoal(this.goal);
 		return customer;
 	}
 
 
     // Getters and setters
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Double getActualWeight() {
+    public Float getActualWeight() {
         return actualWeight;
     }
 
-    public void setActualWeight(Double actualWeight) {
+    public void setActualWeight(Float actualWeight) {
         this.actualWeight = actualWeight;
     }
 
@@ -79,27 +81,23 @@ public class CustomerDto {
         this.name = name;
     }
 
-    public Long getTrainingPlanId() {
-        return trainingPlanId;
-    }
 
-    public Long getAssignedTrainerId() {
-        return assignedTrainerId;
-    }
-    
-    public void setTrainingPlanId(Long trainingPlanId) {
-        this.trainingPlanId = trainingPlanId;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public void setAssignedTrainerId(Long assignedTrainerId) {
-        this.assignedTrainerId = assignedTrainerId;
-    }
 
-    public Long getUserId() {
-        return userId;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+
+	public String getGoal() {
+		return goal;
+	}
+
+
+	public void setGoal(String goal) {
+		this.goal = goal;
+	}
 }

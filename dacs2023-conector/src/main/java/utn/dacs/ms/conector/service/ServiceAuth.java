@@ -2,8 +2,13 @@ package utn.dacs.ms.conector.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import utn.dacs.ms.conector.api.client.AuthClient;
 import javax.annotation.PostConstruct;
+
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,8 +73,27 @@ public class ServiceAuth {
     }
 
     private boolean isAccessTokenExpired() {
+    	
+    	try {
+            String[] chunks = accessToken.split("\\.");
+            String payload = new String(Base64.getUrlDecoder().decode(chunks[1]));
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> payloadMap = mapper.readValue(payload, Map.class);
+
+            Integer exp = (Integer) payloadMap.get("exp");
+            if (exp == null) return true;
+
+            long expMillis = exp * 1000L;
+            long nowMillis = System.currentTimeMillis();
+
+            return expMillis < nowMillis;
+        } catch (Exception e) {
+            System.err.println("No se pudo parsear el token: " + e.getMessage());
+            return true; // En caso de error, mejor asumir que está vencido
+        }
+    	
         // Implementar lógica para verificar si el token ha expirado
         // Esto puede ser basado en la expiración del token o tiempo transcurrido
-        return false; // Placeholder: Implementa tu propia lógica
+        //return false; // Placeholder: Implementa tu propia lógica
     }
 }

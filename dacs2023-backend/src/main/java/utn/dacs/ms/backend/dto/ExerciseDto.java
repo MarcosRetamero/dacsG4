@@ -5,7 +5,10 @@ public class ExerciseDto {
     private Long id;
     private String name;
     private String description;
-    private String muscleGroup;
+    private Integer routineId;
+    private String image;
+    private Integer sets;
+    private Integer reps;
 
     // Getters and setters
 
@@ -33,11 +36,36 @@ public class ExerciseDto {
         this.description = description;
     }
 
-    public String getMuscleGroup() {
-        return muscleGroup;
-    }
 
-    public void setMuscleGroup(String muscleGroup) {
-        this.muscleGroup = muscleGroup;
-    }
+	public Integer getRoutineId() {
+		return routineId;
+	}
+
+	public void setRoutineId(Integer routineId) {
+		this.routineId = routineId;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+	public Integer getSets() {
+		return sets;
+	}
+
+	public void setSets(Integer sets) {
+		this.sets = sets;
+	}
+
+	public Integer getReps() {
+		return reps;
+	}
+
+	public void setReps(Integer reps) {
+		this.reps = reps;
+	}
 }

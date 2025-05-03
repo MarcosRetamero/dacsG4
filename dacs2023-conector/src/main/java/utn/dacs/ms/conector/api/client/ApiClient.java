@@ -13,11 +13,16 @@ import utn.dacs.ms.conector.dto.WgerApiResponse;
 )
 public interface ApiClient {
 
-    // obtener todos los ejercicios en español
-    @GetMapping("/exercise")
-    WgerApiResponse<ExerciseDTO> getExercises(@RequestParam("limit") int limit, @RequestParam("language") int language);
+    // Mantenemos el nombre del método y el tipo de DTO,
+    // pero apuntamos al endpoint real que sirve ahora.
+    @GetMapping("/exercise-translation")
+    WgerApiResponse<ExerciseDTO> getExercises(
+            @RequestParam("limit") int limit,
+            @RequestParam("language") int language
+    );
 
-    // obtener todas las imágenes
     @GetMapping("/exerciseimage")
-    WgerApiResponse<ExerciseImageDTO> getExerciseImages(@RequestParam("limit") int limit);
+    WgerApiResponse<ExerciseImageDTO> getExerciseImages(
+            @RequestParam("limit") int limit
+    );
 }

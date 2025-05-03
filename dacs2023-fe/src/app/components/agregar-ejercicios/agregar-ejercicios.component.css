@@ -1,0 +1,104 @@
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 50px;
+  display: flex;
+  flex-direction: column;
+  background-color: hsl(0, 0%, 100%);
+  margin-top: 50px;
+  border-radius: 15px;
+  box-shadow: 0px 0px 10px 5px rgb(255, 0, 0);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+}
+
+input, select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+}
+
+button {
+  padding: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.exercise-form {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+table {
+  width: 100%;
+  margin-top: 15px;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+body {
+  font-family: 'Roboto', sans-serif; /* Usamos la fuente Roboto desde el CSS global */
+  display: flex;
+  justify-content: center;
+  background-image: url('assets/images/wallpaper.png');
+  background-position: center; /* Centra la imagen */
+  min-height: 100vh;
+  height: max-content;
+}
+routine-form {
+  background-color: #dd0202;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.botones-usuario {
+  display: flex;
+  flex-direction: row; /* Los botones estarán en una columna */
+  gap: 10px; /* Separación entre botones */
+  justify-content: end;
+  align-items: flex-end;
+}
+
+.botones-usuario button {
+
+  background-color: var(--grey); /* Gris oscuro */
+  color: var(--white); /* Blanco */
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.botones-usuario button:disabled {
+  background-color: #e1e1e1; /* Color de fondo gris */
+  color: #323232; /* Color del texto más claro */
+  cursor:not-allowed; /* Cursor indicando que está deshabilitado */
+  opacity: 0.6; /* Opacidad reducida */
+  transform: none; /* Evita efectos de transformación */
+}

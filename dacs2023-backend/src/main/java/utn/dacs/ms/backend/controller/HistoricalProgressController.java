@@ -24,6 +24,39 @@ public class HistoricalProgressController {
 
     @Autowired
     private ModelMapper modelMapper;
+    
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<HistoricalProgressDto>> getByCustomerId(@PathVariable String customerId) {
+        List<HistoricalProgress> progressList = historicalProgressService.getByCustomerId(customerId);
+        if (progressList.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        List<HistoricalProgressDto> data = progressList.stream()
+            .map(progress -> modelMapper.map(progress, HistoricalProgressDto.class))
+            .collect(Collectors.toList());
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+    
+    @PutMapping("/customer/{customerId}")
+    public ResponseEntity<HistoricalProgressDto> updateLastByCustomerId(
+            @PathVariable String customerId,
+            @RequestBody HistoricalProgressDto progressDto) throws ResourceNotFoundException {
+
+        List<HistoricalProgress> progressList = historicalProgressService.getByCustomerId(customerId);
+        if (progressList.isEmpty()) {
+            throw new ResourceNotFoundException("No progress entries found for customerId: " + customerId);
+        }
+
+        HistoricalProgress progress = new HistoricalProgress();
+        progress.setWeight(progressDto.getWeight());
+        progress.setDate(progressDto.getDate());
+
+        HistoricalProgress updated = historicalProgressService.updateLastByCustomerId(customerId, progress);
+        HistoricalProgressDto responseDto = modelMapper.map(updated, HistoricalProgressDto.class);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
 
     @GetMapping("")
     public ResponseEntity<List<HistoricalProgressDto>> getAll() {

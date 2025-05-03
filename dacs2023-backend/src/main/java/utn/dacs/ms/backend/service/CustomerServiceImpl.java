@@ -20,7 +20,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Optional<Customer> getById(Long id) {
+    public Optional<Customer> getById(String id) {
         return customerRepository.findById(id);
     }
 
@@ -35,30 +35,21 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(String id) {
         customerRepository.deleteById(id);
     }
 
     @Override
-    public Boolean existById(Long id) {
+    public boolean existById(String id) {
         return customerRepository.existsById(id);
     }
 
-    @Override
-    public List<Customer> getCustomersByTrainer(Long trainerId) {
-        return customerRepository.findByAssignedTrainer_Id(trainerId);
-    }
-
-    @Override
-    public List<Customer> getCustomersByTrainingPlan(Long trainingPlanId) {
-        return customerRepository.findByTrainingPlan_Id(trainingPlanId);
-    }
-
+    
     // Método de búsqueda por filtros (puedes optimizar según necesidades)
     @Override
     public Customer getBy(Map<String, Object> filter) {
         if (filter.containsKey("id")) {
-            Long id = (Long) filter.get("id");
+        	String id = (String) filter.get("id");
             return customerRepository.findById(id).orElse(null);
         }
         return null; // Solo filtra por ID en este caso
@@ -67,13 +58,29 @@ public class CustomerServiceImpl implements CustomerService {
 	@Override
 	public List<Customer> find(Map<String, Object> filter) {
 		if (filter.containsKey("id")) {
-            Long id = (Long) filter.get("id");
+			String id = (String) filter.get("id");
             return customerRepository.findById(id)
             	    .map(customer -> List.of(customer)) // Uso explícito de la lambda
             	    .orElseGet(List::of);
         }
         return customerRepository.findAll(); // Retorna todos los clientes si no hay filtro		
 	}
+
+	@Override
+	public Optional<Customer> getById(Long id) {
+	    throw new UnsupportedOperationException("Este método no está soportado, usa getById(String)");
+	}
+
+	@Override
+	public Boolean existById(Long id) {
+	    throw new UnsupportedOperationException("Este método no está soportado, usa existById(String)");
+	}
+
+	@Override
+	public void delete(Long id) {
+	    throw new UnsupportedOperationException("Este método no está soportado, usa delete(String)");
+	}
+
 
  
 }

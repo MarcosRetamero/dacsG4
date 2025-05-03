@@ -2,18 +2,18 @@
 .navbar {
   display: flex;
   justify-content: space-between;
-  font-family: 'Roboto', sans-serif; /* Usamos la fuente Roboto desde el CSS global */
   align-items: center;
   padding: 0 1rem;
   height: 70px;
   background: var(--grey);
+  font-family: 'Roboto', sans-serif;
 }
 
 /* nombre de la app */
 .navbar-left .app-name {
   font-size: 1.8rem;
   font-weight: bold;
-  color: var(--white); /* texto negro */
+  color: var(--white);
   letter-spacing: 1px;
 }
 
@@ -28,65 +28,65 @@
 .notifications i {
   font-size: 1.5rem;
   cursor: pointer;
-  color: var(--white); /* negro */
+  color: var(--white);
   transition: color 0.3s ease;
 }
 
 .notifications i:hover {
-  color: var(--dark-grey); /* gris oscuro */
+  color: var(--dark-grey);
 }
 
-/* menú de cuenta */
-.account-menu {
+/* contenedor completo del menú */
+.account-menu-wrapper {
   position: relative;
+  display: inline-block;
+}
+
+.account-menu-toggle {
   display: flex;
   align-items: center;
-  cursor: pointer;
-  color: var(--white); /* negro */
   gap: 0.5rem;
-}
-
-.account-menu .dropdown-menu {
-  position: absolute;
-  top: 40px;
-  right: 0;
-  background-color: var(--beige); /* beige */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  list-style: none;
-  padding: 0.5rem 0;
-  border-radius: 5px;
-  color: var(--white); /* texto negro */
-  display: none;
-}
-
-.account-menu:hover .dropdown-menu {
-  display: block;
-}
-
-.account-menu .dropdown-menu li {
-  padding: 0.5rem 1rem;
-  white-space: nowrap;
-  transition: background-color 0.3s ease;
-}
-
-.account-menu .dropdown-menu li:hover {
-  background-color: var(--light-green); /* fondo verde claro al pasar el mouse */
+  color: var(--white);
   cursor: pointer;
+  padding: 10px;
 }
 
-/* icono de flecha */
-.account-menu i {
+/* ícono de flecha */
+.account-menu-toggle i {
   font-size: 0.9rem;
   transition: transform 0.3s ease;
 }
 
-.account-menu i.rotate {
-  transform: rotate(180deg);
+/* menú desplegable */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;  
+  background-color: var(--grey);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  list-style: none;
+  padding: 0.5rem 0;
+  border-radius: 5px;
+  color: var(--white);
+  min-width: 150px;
+  z-index: 10;
 }
 
-/* Añadido de estilo global para el contenido */
+.dropdown-menu li {
+  background-color: var(--dark-grey);
+  padding: 0.5rem 1rem;
+  text-align: center;
+  white-space: nowrap;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-menu li:hover {
+  background-color: grey;
+  cursor: pointer;
+}
+/* estilo global del body */
 body {
-  background-color: var(--light-grey); /* fondo gris muy claro */
+  background-color: var(--light-grey);
   margin: 0;
   padding: 0;
   font-family: 'Arial', sans-serif;

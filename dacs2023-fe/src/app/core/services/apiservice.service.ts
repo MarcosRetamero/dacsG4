@@ -1,3 +1,4 @@
+
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
@@ -37,7 +38,7 @@ export class ApiService {
             .pipe();
     }
 
-    postTest(param: IRequestTest) { 
+    postTest(param: IRequestTest) {
         const url = `${environment.backendForFrontendUrl}/test`;
         return this.http.post<any[]>(url, param, this.headers);
     }

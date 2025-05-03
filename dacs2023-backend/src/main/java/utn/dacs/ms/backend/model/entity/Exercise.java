@@ -16,4 +16,10 @@ public class Exercise {
     private String description;
 
     private String image;
+    
+    private Integer routineid;
+    
+    private Integer reps;
+    
+    private Integer sets;
 }

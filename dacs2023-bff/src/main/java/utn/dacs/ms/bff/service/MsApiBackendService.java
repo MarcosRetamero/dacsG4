@@ -1,9 +1,12 @@
 package utn.dacs.ms.bff.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import utn.dacs.ms.bff.api.client.MsApiBackendClient;
 import utn.dacs.ms.bff.dto.CustomerDto;
@@ -11,6 +14,7 @@ import utn.dacs.ms.bff.dto.ExerciseDto;
 import utn.dacs.ms.bff.dto.ExerciseRoutineDto;
 import utn.dacs.ms.bff.dto.HistoricalProgressDto;
 import utn.dacs.ms.bff.dto.KeycloakUserDto;
+import utn.dacs.ms.bff.dto.RoutineDto;
 import utn.dacs.ms.bff.dto.TrainerDto;
 import utn.dacs.ms.bff.dto.TrainingPlanDto;
 import utn.dacs.ms.bff.dto.TrainingRoutineDto;
@@ -47,7 +51,7 @@ public class MsApiBackendService {
     
 
     /////// MÉTODOS RELACIONADOS con el Customer /////////
-    public CustomerDto getCustomerById(Long id) {
+    public CustomerDto getCustomerById(String id) {
         try {
             return this.msApiBackendClient.getCustomerById(id); // Llamada al método Feign en el cliente Backend
         } catch (Exception e) {
@@ -70,6 +74,21 @@ public class MsApiBackendService {
         return this.msApiBackendClient.getAllCustomers(); // Llama al backend a través del cliente
     }
     
+    public CustomerDto updateCustomerGoal(String id, String newGoal) {
+        Map<String, String> body = Map.of("goal", newGoal);
+        return msApiBackendClient.updateCustomerGoal(id, body);
+    }
+    
+    public CustomerDto updateCustomer(String id, CustomerDto customerDto) {
+        try {
+            return this.msApiBackendClient.updateCustomer(id, customerDto);
+        } catch (Exception e) {
+            log.error("Error al actualizar el cliente con id: {}", id, e);
+            throw new BffException(ErrorEnum.ERROR_API);
+        }
+    }
+
+
     
     /////// SERVICE RELACIONADOS CON EXERCISE /////////
     
@@ -92,6 +111,15 @@ public class MsApiBackendService {
     public ExerciseDto updateExercise(Long exerciseId, ExerciseDto exerciseDto) {
         return msApiBackendClient.updateExercise(exerciseId, exerciseDto);
     }
+    
+    public List<ExerciseDto> getExercisesByRoutineId(Integer routineId) {
+        return msApiBackendClient.getExercisesByRoutineId(routineId);
+    }
+
+    public ExerciseDto createExerciseForRoutine(Integer routineId, ExerciseDto exerciseDto) {
+        return msApiBackendClient.createExerciseForRoutine(routineId, exerciseDto);
+    }
+
     
     
     ////////// SERVICE PARA EXERCISE ROUTINE ////////////    
@@ -120,7 +148,7 @@ public class MsApiBackendService {
     }
 
     // Método para obtener el progreso histórico de un cliente por su ID
-    public List<HistoricalProgressDto> getHistoricalProgressByCustomerId(Long customerId) {
+    public List<HistoricalProgressDto> getHistoricalProgressByCustomerId(String customerId) {
         return msApiBackendClient.getHistoricalProgressByCustomerId(customerId);
     }
 
@@ -128,6 +156,11 @@ public class MsApiBackendService {
     public HistoricalProgressDto createHistoricalProgress(HistoricalProgressDto historicalProgressDto) {
         return msApiBackendClient.createHistoricalProgress(historicalProgressDto);
     }
+    
+    public HistoricalProgressDto updateLastHistoricalProgressByCustomerId(String customerId, HistoricalProgressDto progressDto) {
+        return msApiBackendClient.updateLastHistoricalProgressByCustomerId(customerId, progressDto);
+    }
+
     
     
     //////////SERVICE PARA KEYCLOAK USER ////////////    
@@ -203,5 +236,41 @@ public class MsApiBackendService {
     public TrainingRoutineDto createTrainingRoutine(TrainingRoutineDto trainingRoutineDto) {
         return msApiBackendClient.createTrainingRoutine(trainingRoutineDto);
     }
+    
+/////// SERVICE PARA ROUTINE /////////
+    
+  // Obtener una rutina por ID
+  public RoutineDto getRoutineById(Long id) {
+      return msApiBackendClient.getRoutineById(id);
+  }
 
+  // Obtener todas las rutinas
+  public List<RoutineDto> getAllRoutines() {
+      return msApiBackendClient.getAllRoutines();
+  }
+
+  // Crear una nueva rutina
+  public RoutineDto createRoutine(RoutineDto routineDto) {
+      return msApiBackendClient.createRoutine(routineDto);
+  }
+
+  // Actualizar una rutina existente
+  public RoutineDto updateRoutine(Long id, RoutineDto routineDto) {
+      return msApiBackendClient.updateRoutine(id, routineDto);
+  }
+
+  // Eliminar una rutina por ID
+  public void deleteRoutine(Long id) {
+      msApiBackendClient.deleteRoutine(id);
+  }
+   
+  
+  public List<RoutineDto> getRoutinesByCustomerId(String customerId) {
+	    try {
+	        return this.msApiBackendClient.getRoutinesByCustomerId(customerId);
+	    } catch (Exception e) {
+	        log.error("Error al obtener rutinas del usuario con ID: {}", customerId, e);
+	        return List.of(); // devolvemos una lista vacía para evitar el error 500
+	    }
+	}
 }

@@ -1,37 +1,53 @@
 <body>
-  <div class="container" *ngIf="filteredPlan">
-    <h1>Plan de Entrenamiento</h1>
+  <div class="container">
+    <h1>Rutina</h1>
 
-    <div class="day-card">
-      <h2 class="day-title">{{ filteredPlan.day }}</h2>
-      <p class="muscle-groups">{{ filteredPlan.muscleGroups }}</p>
+    <div class="day-card" *ngIf="routine">
+      <h2 class="day-title">{{ getDayName(routine.day) }}</h2>
+      <p class="muscle-groups">{{ routine.routineName }}</p>
 
       <div class="exercise-list">
-        <div *ngFor="let exercise of filteredPlan.exercises" class="exercise-card">
-          <div class="image-container">
-            <img *ngIf="exercise.imageUrl" [src]="exercise.imageUrl" [alt]="'Demostración de ' + exercise.name" />
-            <div *ngIf="!exercise.imageUrl" class="w-full h-full flex items-center justify-center text-muted-foreground">
-              Imagen del ejercicio
+        <div *ngFor="let exercise of exercises" class="exercise-card">
+          <div class="exercise-image-container">
+            <img
+              *ngIf="exercise.image"
+              [src]="exercise.image"
+              [alt]="'Demostración de ' + exercise.name"
+              class="exercise-image"
+            />
+            <div *ngIf="!exercise.image" class="exercise-image-placeholder">
+              Sin imagen disponible
             </div>
           </div>
-          <h3>{{ exercise.name }}</h3>
+          <h3 class="exercise-name">{{ exercise.name }}</h3>
+          <p class="exercise-description">
+            {{ limpiarDescripcion(exercise.description) }}
+          </p>
+
           <div class="exercise-info">
-            <div>
-              <p>Series</p>
-              <p>{{ exercise.sets }}</p>
+            <div class="info-item">
+              <p class="info-label">Series</p>
+              <p class="info-value">{{ exercise.sets }}</p>
             </div>
-            <div>
-              <p>Repeticiones</p>
-              <p>{{ exercise.reps }}</p>
+            <div class="info-item">
+              <p class="info-label">Repeticiones</p>
+              <p class="info-value">{{ exercise.reps }}</p>
             </div>
           </div>
         </div>
       </div>
+      <div class="botones-usuario">
+        <button (click)="editRoutine()" class="btn-edit">Editar rutina</button>
+        <button (click)="deleteRoutine()" class="btn-delete">
+          Eliminar rutina
+        </button>
+        <button (click)="goBack()" class="btn-back">Atrás</button>
+      </div>
     </div>
-  </div>
 
-  <div *ngIf="!filteredPlan" class="no-plan">
-    <p>No hay entrenamientos disponibles para el día seleccionado.</p>
+    <div *ngIf="!routine" class="error-message">
+      No se encontró la rutina solicitada
+    </div>
   </div>
 </body>
 <footer class="footer">

@@ -24,6 +24,32 @@ public class ExerciseController {
 
     @Autowired
     private ModelMapper modelMapper;
+    
+ // GET ejercicios por routineId
+    @GetMapping("/routine/{routineId}")
+    public ResponseEntity<List<ExerciseDto>> getByRoutineId(@PathVariable Integer routineId) {
+        List<Exercise> exercises = exerciseService.getByRoutineId(routineId);
+        List<ExerciseDto> data = exercises.stream()
+            .map(ex -> modelMapper.map(ex, ExerciseDto.class))
+            .collect(Collectors.toList());
+        return new ResponseEntity<>(data, HttpStatus.OK); //Si no devuelve ninguna rutina devuelve un 200 OK
+    }
+
+    // POST ejercicio para una rutina
+    @PostMapping("/routine/{routineId}")
+    public ResponseEntity<ExerciseDto> createForRoutine(
+            @PathVariable Integer routineId,
+            @RequestBody ExerciseDto exerciseDto) {
+
+        // Seteamos el routineId recibido en la URL al DTO
+        exerciseDto.setRoutineId(routineId);
+        Exercise exercise = modelMapper.map(exerciseDto, Exercise.class);
+        Exercise saved = exerciseService.save(exercise);
+        ExerciseDto data = modelMapper.map(saved, ExerciseDto.class);
+
+        return new ResponseEntity<>(data, HttpStatus.CREATED);
+    } 
+    
 
     @GetMapping("")
     public ResponseEntity<List<ExerciseDto>> getAll() {

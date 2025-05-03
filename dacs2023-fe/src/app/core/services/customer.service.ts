@@ -1,44 +1,135 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment'; // Importa la configuración del entorno
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { catchError, map, Observable, of, throwError, switchMap } from 'rxjs';
+import { AuthService } from './auth.service';
+
+// Define la interfaz de Customer según la respuesta del backend
+export interface Customer {
+  id: string;
+  actualWeight: number;
+  stature: number;
+  age: number;
+  name: string;
+  email: string;
+  goal: string | null;
+  imc?: number | null; // Optional field for frontend calculations
+}
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class CustomerService {
-  // Usa la URL de la base de datos configurada en el archivo de entorno
-  private apiUrl = `${environment.databaseUrl}/customer`; // API de la base de datos
+  private apiUrl = 'http://localhost:9001/bff/backend/customer'; // Endpoint base
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // Obtener todos los clientes
-  getCustomers(): Observable<any> {
-    return this.http.get<any>(this.apiUrl);
+  getCustomers(): Observable<Customer[]> {
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
+        return this.http.get<Customer[]>(`${this.apiUrl}`, { headers });
+      })
+    );
   }
 
-  // Obtener cliente por ID
-  getCustomerById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  getCustomerById(id: string): Observable<Customer> {
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
+        return this.http.get<Customer>(`${this.apiUrl}/${id}`, { headers });
+      })
+    );
   }
 
-  // Obtener cliente por userId
-  getCustomerByUserId(userId: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/user/${userId}`);
+  addCustomer(customer: Customer): Observable<Customer> {
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        });
+        return this.http.post<Customer>(this.apiUrl, customer, { headers });
+      })
+    );
   }
 
-  // Crear nuevo cliente
-  addCustomer(customerData: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, customerData);
+  updateCustomerGoal(id: string, goal: string): Observable<Customer> {
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        });
+        return this.http.put<Customer>(`${this.apiUrl}/${id}/goal`, { goal }, { headers });
+      })
+    );
   }
 
-  // Actualizar cliente
-  updateCustomer(id: number, customerData: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, customerData);
+
+  updateCustomer(id: string, customer: Customer): Observable<Customer> {
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        });
+        return this.http.put<Customer>(`${this.apiUrl}/${id}`, customer, { headers });
+      })
+    );
   }
 
-  // Eliminar cliente
-  deleteCustomer(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${id}`);
+  deleteCustomer(id: string): Observable<void> {
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
+        return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
+      })
+    );
+  }
+
+  isNewUser(id: string): Observable<{ customer: Customer | null, isNewUser: boolean }> {
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`
+        });
+        return this.http.get<Customer>(`${this.apiUrl}/${id}`, { headers }).pipe(
+          map((customer: Customer) => {
+            const isNewUser = !customer.name || !customer.age || !customer.stature || !customer.actualWeight;
+            return { customer, isNewUser };
+          }),
+          catchError((error) => {
+            if (error.status === 404) {
+              return of({ customer: null, isNewUser: true });
+            }
+            return throwError(() => error);
+          })
+        );
+      })
+    );
+  }
+
+  createProgress(progress: {
+    customerId: string;
+    date: string;
+    weight: number;
+    progressDescription?: string | null;
+    bodyFatPercentage?: number | null;
+  }): Observable<any> {
+    return this.authService.getToken().pipe(
+      switchMap(token => {
+        const headers = new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        });
+        return this.http.post('http://localhost:9001/bff/backend/historical-progress', progress, { headers });
+      })
+    );
   }
 }
